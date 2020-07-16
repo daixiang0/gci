@@ -38,22 +38,16 @@ import (
 ```
 
 ```shell
-$ gci -d -local github.com/daixiang0/gci main.go
-diff -u main.go.orig main.go
---- main.go.orig	2020-07-16 09:56:58.723774389 +0800
-+++ main.go	2020-07-16 09:56:58.727774419 +0800
-@@ -1,8 +1,8 @@
- package main
- import (
-- "golang.org/x/tools"
-+	"fmt"
+$ gci -w -local github.com/daixiang0/gci main.go
+$ cat main.go
+package main
+import (
+  "fmt"
 
-- "fmt"
-+	"golang.org/x/tools"
+  "golang.org/x/tools"
 
-- "github.com/daixiang0/gci"
-+	"github.com/daixiang0/gci"
- )
+  "github.com/daixiang0/gci"
+)
 ```
 
 ## TODO
