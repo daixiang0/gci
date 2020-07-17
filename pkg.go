@@ -58,7 +58,7 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 		// 2. commentFlag after import path
 		commentIndex := strings.Index(line, commentFlag)
 		if commentIndex == 0 {
-			pkg, _, _ := getPkgInfo(formatData[i+1], true)
+			pkg, _, _ := getPkgInfo(formatData[i+1], strings.Index(formatData[i+1], commentFlag) >= 0)
 			p.comment[pkg] = line
 			continue
 		} else if commentIndex > 0 {
@@ -94,7 +94,7 @@ func (p *pkg) fmt() []byte {
 		sort.Strings(p.list[pkgType])
 		for _, s := range p.list[pkgType] {
 			if p.comment[s] != "" {
-				l := fmt.Sprintf("%s%s%s", indent, p.comment[s], linebreak)
+				l := fmt.Sprintf("%s%s%s%s", linebreak, indent, p.comment[s], linebreak)
 				ret = append(ret, l)
 			}
 
@@ -114,7 +114,11 @@ func (p *pkg) fmt() []byte {
 	if ret[len(ret)-1] == linebreak {
 		ret = ret[:len(ret)-1]
 	}
-	return []byte(strings.Join(ret, ""))
+
+	// remove duplicate empty lines
+	s1 := fmt.Sprintf("%s%s%s%s", linebreak, linebreak, linebreak, indent)
+	s2 := fmt.Sprintf("%s%s%s", linebreak, linebreak, indent)
+	return []byte(strings.ReplaceAll(strings.Join(ret, ""), s1, s2))
 }
 
 // getPkgInfo assume line is a import path, and return (path, alias, comment)
