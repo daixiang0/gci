@@ -21,9 +21,11 @@ usage: gci [flags] [path ...]
   -w	write result to (source) file instead of stdout
 ```
 
-## Example
+## Examples
 
-main.go:
+Run `gci -w -local github.com/daixiang0/gci main.go` and you will handle following cases.
+
+### simple case
 
 ```go
 package main
@@ -34,17 +36,91 @@ import (
 
   "github.com/daixiang0/gci"
 )
-
 ```
 
-```shell
-$ gci -w -local github.com/daixiang0/gci main.go
-$ cat main.go
+to
+
+```go
 package main
 import (
   "fmt"
 
   "golang.org/x/tools"
+
+  "github.com/daixiang0/gci"
+)
+```
+
+### with alias
+
+```go
+package main
+import (
+  "fmt"
+  go "github.com/golang"
+  "github.com/daixiang0"
+)
+```
+
+to
+
+```go
+package main
+import (
+  "fmt"
+
+  go "github.com/golang"
+
+  "github.com/daixiang0/gci"
+)
+```
+
+### with comment and alias
+
+```go
+package main
+import (
+  "fmt"
+  _ "github.com/golang" // golang
+  "github.com/daixiang0"
+)
+```
+
+to
+
+```go
+package main
+import (
+  "fmt"
+
+  // golang
+  _ "github.com/golang"
+
+  "github.com/daixiang0/gci"
+)
+```
+
+### with above comment and alias
+
+```go
+package main
+import (
+  "fmt"
+  // golang
+  _ "github.com/golang"
+  "github.com/daixiang0"
+)
+```
+
+to
+
+```go
+package main
+import (
+  "fmt"
+
+  // golang
+  _ "github.com/golang"
 
   "github.com/daixiang0/gci"
 )
