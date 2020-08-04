@@ -308,7 +308,7 @@ func processFile(filename string, out io.Writer, set *FlagSet) error {
 				return err
 			}
 		}
-		if *set.DoWrite {
+		if *set.DoDiff {
 			data, err := diff(ori, res, filename)
 			if err != nil {
 				return fmt.Errorf("failed to diff: %v", err)
