@@ -61,7 +61,8 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 		}
 	}
 
-	for i := len(formatData) - 1; i >= 0; i-- {
+	n := len(formatData)
+	for i := n - 1; i >= 0; i-- {
 		line := formatData[i]
 
 		// check commentFlag:
@@ -69,6 +70,10 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 		// 2. commentFlag after import path
 		commentIndex := strings.Index(line, commentFlag)
 		if commentIndex == 0 {
+			// comment in the last line is useless, ignore it
+			if i+1 >= n {
+				continue
+			}
 			pkg, _, _ := getPkgInfo(formatData[i+1], strings.Index(formatData[i+1], commentFlag) >= 0)
 			p.comment[pkg] = line
 			continue
