@@ -328,18 +328,19 @@ func processFile(filename string, out io.Writer, set *FlagSet) error {
 	return err
 }
 
-func Run(filename string, set *FlagSet) ([]byte, error) {
+// Run return source and result in []byte if succeed
+func Run(filename string, set *FlagSet) ([]byte, []byte, error) {
 	var err error
 
 	f, err := os.Open(filename)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer f.Close()
 
 	src, err := ioutil.ReadAll(f)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	ori := make([]byte, len(src))
@@ -347,7 +348,7 @@ func Run(filename string, set *FlagSet) ([]byte, error) {
 	start := bytes.Index(src, importStartFlag)
 	// in case no importStartFlag or importStartFlag exist in the commentFlag
 	if start < 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
 	end := bytes.Index(src[start:], importEndFlag) + start
 
@@ -358,13 +359,8 @@ func Run(filename string, set *FlagSet) ([]byte, error) {
 	res := append(src[:start+len(importStartFlag)], append(p.fmt(), src[end+1:]...)...)
 
 	if bytes.Equal(ori, res) {
-		return nil, nil
+		return ori, nil, nil
 	}
 
-	data, err := diff(ori, res, filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to diff: %v", err)
-	}
-
-	return data, nil
+	return ori, res, nil
 }
