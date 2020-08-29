@@ -354,7 +354,7 @@ func Run(filename string, set *FlagSet) ([]byte, []byte, error) {
 	
 	// in case import flags are part of a codegen template, or otherwise "wrong"
 	if start+len(importStartFlag) > end {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	ret := bytes.Split(src[start+len(importStartFlag):end], []byte(linebreak))
