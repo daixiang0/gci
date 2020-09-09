@@ -152,6 +152,32 @@ import (
 )
 ```
 
+### with above multiline comment
+
+```go
+import (
+  "fmt"
+  // a first line of comment
+  // a second line of comment
+  _ "github.com/golang"
+  "github.com/daixiang0"
+)
+```
+
+to
+
+```go
+import (
+  "fmt"
+
+  // a first line of comment
+  // a second line of comment
+  _ "github.com/golang"
+
+  "github.com/daixiang0"
+)
+```
+
 ## TODO
 
 - Support multi-3rd-party packages

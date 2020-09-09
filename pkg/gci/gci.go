@@ -39,7 +39,7 @@ type FlagSet struct {
 
 type pkg struct {
 	list    map[int]map[string]bool
-	comment map[string]string
+	comment map[string][]string
 	aliases map[string][]string
 }
 
@@ -49,7 +49,7 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 		remote:   {},
 		local:    {},
 	}
-	commentMap := make(map[string]string)
+	commentMap := make(map[string][]string)
 	aliasMap := make(map[string][]string)
 	p := &pkg{
 		list:    listMap,
@@ -66,6 +66,7 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 	}
 
 	n := len(formatData)
+	var lastPkg string
 	for i := n - 1; i >= 0; i-- {
 		line := formatData[i]
 
@@ -78,8 +79,7 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 			if i+1 >= n {
 				continue
 			}
-			pkg, _, _ := getPkgInfo(formatData[i+1], strings.Index(formatData[i+1], commentFlag) >= 0)
-			p.comment[pkg] = line
+			p.comment[lastPkg] = append([]string{line}, p.comment[lastPkg]...)
 			continue
 		} else if commentIndex > 0 {
 			pkg, alias, comment := getPkgInfo(line, true)
@@ -87,7 +87,7 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 				p.aliases[pkg] = append(p.aliases[pkg], alias)
 			}
 
-			p.comment[pkg] = comment
+			p.comment[pkg] = []string{comment}
 			pkgType := getPkgType(pkg, localFlag)
 			p.list[pkgType][pkg] = true
 			continue
@@ -101,6 +101,7 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 
 		pkgType := getPkgType(pkg, localFlag)
 		p.list[pkgType][pkg] = true
+		lastPkg = pkg
 	}
 
 	return p
@@ -118,9 +119,11 @@ func (p *pkg) fmt() []byte {
 		sort.Strings(pkgs)
 
 		for _, s := range pkgs {
-			if p.comment[s] != "" {
-				l := fmt.Sprintf("%s%s%s%s", linebreak, indent, p.comment[s], linebreak)
-				ret = append(ret, l)
+			if len(p.comment[s]) > 0 {
+				ret = append(ret, linebreak)
+				for _, comment := range p.comment[s] {
+					ret = append(ret, fmt.Sprintf("%s%s%s", indent, comment, linebreak))
+				}
 			}
 
 			if len(p.aliases[s]) > 0 {

@@ -138,6 +138,30 @@ import (
 )
 `,
 		},
+		{
+			name:      "with above multiline comment",
+			localFlag: "github.com/daixiang0",
+			sourceImports: `
+import (
+	"fmt"
+	// a first line of comment
+	// a second line of comment
+	_ "github.com/golang"
+	"github.com/daixiang0"
+)
+`,
+			expectedImports: `
+import (
+	"fmt"
+
+	// a first line of comment
+	// a second line of comment
+	_ "github.com/golang"
+
+	"github.com/daixiang0"
+)
+`,
+		},
 	}
 
 	for _, c := range testCases {
