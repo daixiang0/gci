@@ -267,8 +267,6 @@ func ProcessFile(filename string, out io.Writer, set *FlagSet) error {
 }
 
 func processFile(filename string, out io.Writer, set *FlagSet) error {
-	var err error
-
 	f, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -280,6 +278,10 @@ func processFile(filename string, out io.Writer, set *FlagSet) error {
 		return err
 	}
 
+	return processSource(filename, src, out, set)
+}
+
+func processSource(filename string, src []byte, out io.Writer, set *FlagSet) error {
 	ori := make([]byte, len(src))
 	copy(ori, src)
 	start := bytes.Index(src, importStartFlag)
@@ -303,7 +305,7 @@ func processFile(filename string, out io.Writer, set *FlagSet) error {
 			if fi, err := os.Stat(filename); err == nil {
 				perms = fi.Mode() & os.ModePerm
 			}
-			err = ioutil.WriteFile(filename, res, perms)
+			err := ioutil.WriteFile(filename, res, perms)
 			if err != nil {
 				return err
 			}
@@ -320,12 +322,12 @@ func processFile(filename string, out io.Writer, set *FlagSet) error {
 		}
 	}
 	if !*set.DoWrite && !*set.DoDiff {
-		if _, err = out.Write(res); err != nil {
+		if _, err := out.Write(res); err != nil {
 			return fmt.Errorf("failed to write: %v", err)
 		}
 	}
 
-	return err
+	return nil
 }
 
 func Run(filename string, set *FlagSet) ([]byte, error) {

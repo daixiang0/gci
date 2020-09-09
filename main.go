@@ -8,8 +8,6 @@ import (
 	"os"
 )
 
-
-
 var (
 	doWrite = flag.Bool("w", false, "doWrite result to (source) file instead of stdout")
 	doDiff  = flag.Bool("d", false, "display diffs instead of rewriting files")
@@ -36,7 +34,6 @@ func usage() {
 	flag.PrintDefaults()
 	os.Exit(2)
 }
-
 
 func main() {
 	flag.Usage = usage
