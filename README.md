@@ -181,5 +181,3 @@ import (
 ## TODO
 
 - Support multi-3rd-party packages
-- Support multiple lines of comment in import block
-- Add testcases
