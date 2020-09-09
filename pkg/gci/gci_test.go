@@ -54,7 +54,7 @@ import (
 `,
 		},
 		{
-			name:      "with alias",
+			name:      "with aliases",
 			localFlag: "github.com/daixiang0",
 			sourceImports: `
 import (
@@ -74,7 +74,29 @@ import (
 `,
 		},
 		{
-			name:      "with comment and alias",
+			name:      "with multiple aliases",
+			localFlag: "github.com/daixiang0",
+			sourceImports: `
+import (
+	a "github.com/golang"
+	b "github.com/golang"
+	"fmt"
+	"github.com/daixiang0"
+)
+`,
+			expectedImports: `
+import (
+	"fmt"
+
+	a "github.com/golang"
+	b "github.com/golang"
+
+	"github.com/daixiang0"
+)
+`,
+		},
+		{
+			name:      "with comment and aliases",
 			localFlag: "github.com/daixiang0",
 			sourceImports: `
 import (
@@ -95,7 +117,7 @@ import (
 `,
 		},
 		{
-			name:      "with above comment and alias",
+			name:      "with above comment and aliases",
 			localFlag: "github.com/daixiang0",
 			sourceImports: `
 import (

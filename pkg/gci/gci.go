@@ -38,19 +38,23 @@ type FlagSet struct {
 }
 
 type pkg struct {
-	list    map[int][]string
+	list    map[int]map[string]bool
 	comment map[string]string
-	alias   map[string]string
+	aliases map[string][]string
 }
 
 func newPkg(data [][]byte, localFlag string) *pkg {
-	listMap := make(map[int][]string)
+	listMap := map[int]map[string]bool{
+		standard: {},
+		remote:   {},
+		local:    {},
+	}
 	commentMap := make(map[string]string)
-	aliasMap := make(map[string]string)
+	aliasMap := make(map[string][]string)
 	p := &pkg{
 		list:    listMap,
 		comment: commentMap,
-		alias:   aliasMap,
+		aliases: aliasMap,
 	}
 
 	formatData := make([]string, 0)
@@ -80,23 +84,23 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 		} else if commentIndex > 0 {
 			pkg, alias, comment := getPkgInfo(line, true)
 			if alias != "" {
-				p.alias[pkg] = alias
+				p.aliases[pkg] = append(p.aliases[pkg], alias)
 			}
 
 			p.comment[pkg] = comment
 			pkgType := getPkgType(pkg, localFlag)
-			p.list[pkgType] = append(p.list[pkgType], pkg)
+			p.list[pkgType][pkg] = true
 			continue
 		}
 
 		pkg, alias, _ := getPkgInfo(line, false)
 
 		if alias != "" {
-			p.alias[pkg] = alias
+			p.aliases[pkg] = append(p.aliases[pkg], alias)
 		}
 
 		pkgType := getPkgType(pkg, localFlag)
-		p.list[pkgType] = append(p.list[pkgType], pkg)
+		p.list[pkgType][pkg] = true
 	}
 
 	return p
@@ -107,20 +111,26 @@ func (p *pkg) fmt() []byte {
 	ret := make([]string, 0, 100)
 
 	for pkgType := range []int{standard, remote, local} {
-		sort.Strings(p.list[pkgType])
-		for _, s := range p.list[pkgType] {
+		var pkgs []string
+		for pkg := range p.list[pkgType] {
+			pkgs = append(pkgs, pkg)
+		}
+		sort.Strings(pkgs)
+
+		for _, s := range pkgs {
 			if p.comment[s] != "" {
 				l := fmt.Sprintf("%s%s%s%s", linebreak, indent, p.comment[s], linebreak)
 				ret = append(ret, l)
 			}
 
-			if p.alias[s] != "" {
-				s = fmt.Sprintf("%s%s%s%s%s", indent, p.alias[s], blank, s, linebreak)
+			if len(p.aliases[s]) > 0 {
+				sort.Strings(p.aliases[s])
+				for _, alias := range p.aliases[s] {
+					ret = append(ret, fmt.Sprintf("%s%s%s%s%s", indent, alias, blank, s, linebreak))
+				}
 			} else {
-				s = fmt.Sprintf("%s%s%s", indent, s, linebreak)
+				ret = append(ret, fmt.Sprintf("%s%s%s", indent, s, linebreak))
 			}
-
-			ret = append(ret, s)
 		}
 
 		if len(p.list[pkgType]) > 0 {
@@ -137,7 +147,7 @@ func (p *pkg) fmt() []byte {
 	return []byte(strings.ReplaceAll(strings.Join(ret, ""), s1, s2))
 }
 
-// getPkgInfo assume line is a import path, and return (path, alias, comment)
+// getPkgInfo assume line is a import path, and return (path, aliases, comment)
 func getPkgInfo(line string, comment bool) (string, string, string) {
 	if comment {
 		s := strings.Split(line, commentFlag)

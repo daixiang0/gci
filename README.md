@@ -75,6 +75,32 @@ import (
 )
 ```
 
+### with multiple aliases
+
+```go
+package main
+import (
+  "fmt"
+  a "github.com/golang"
+  b "github.com/golang"
+  "github.com/daixiang0"
+)
+```
+
+to
+
+```go
+package main
+import (
+  "fmt"
+
+  a "github.com/golang"
+  b "github.com/golang"
+
+  "github.com/daixiang0/gci"
+)
+```
+
 ### with comment and alias
 
 ```go
