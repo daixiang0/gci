@@ -12,15 +12,17 @@ import (
 	"strings"
 )
 
+type pkgType int
+
 const (
 	// pkg type: standard, remote, local
-	standard int = iota
+	standard pkgType = iota
 	// 3rd-party packages
 	remote
 	local
-
-	commentFlag = "//"
 )
+
+const commentFlag = "//"
 
 var (
 	importStartFlag = []byte(`
@@ -37,24 +39,42 @@ type FlagSet struct {
 	DoWrite, DoDiff *bool
 }
 
+type pkgInfo struct {
+	path    string
+	alias   string
+	comment []string
+}
+
+type pkgInfos []*pkgInfo
+
+var _ sort.Interface = pkgInfos{}
+
+func (p pkgInfos) Len() int {
+	return len(p)
+}
+
+func (p pkgInfos) Less(i, j int) bool {
+	if p[i].path != p[j].path {
+		return p[i].path < p[j].path
+	}
+	return p[i].alias < p[j].alias
+}
+
+func (p pkgInfos) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
 type pkg struct {
-	list    map[int]map[string]bool
-	comment map[string][]string
-	aliases map[string][]string
+	list map[pkgType]pkgInfos
 }
 
 func newPkg(data [][]byte, localFlag string) *pkg {
-	listMap := map[int]map[string]bool{
-		standard: {},
-		remote:   {},
-		local:    {},
-	}
-	commentMap := make(map[string][]string)
-	aliasMap := make(map[string][]string)
 	p := &pkg{
-		list:    listMap,
-		comment: commentMap,
-		aliases: aliasMap,
+		list: map[pkgType]pkgInfos{
+			standard: {},
+			remote:   {},
+			local:    {},
+		},
 	}
 
 	formatData := make([]string, 0)
@@ -65,38 +85,37 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 		}
 	}
 
-	n := len(formatData)
-	var lastPkg string
-	for i := n - 1; i >= 0; i-- {
+	// lastInfo keeps track of the info from the previous iteration of the for loop
+	// The loop iterates backward (from the bottom up) so when a comment line is detected
+	// it should always be prepend to the comment block of the lastInfo
+	var lastInfo *pkgInfo
+	for i := len(formatData) - 1; i >= 0; i-- {
 		line := formatData[i]
 
 		// check commentFlag:
 		// 1. one line commentFlag
 		// 2. commentFlag after import path
+		// 3. commentFlag not present
 		commentIndex := strings.Index(line, commentFlag)
-		if commentIndex == 0 {
+		switch {
+		case commentIndex == 0:
 			// comment in the last line is useless, ignore it
-			if i+1 >= n {
-				continue
+			if lastInfo != nil {
+				lastInfo.comment = append([]string{line}, lastInfo.comment...)
 			}
-			p.comment[lastPkg] = append([]string{line}, p.comment[lastPkg]...)
-			continue
-		} else if commentIndex > 0 {
-			pkg, alias, comment := getPkgInfo(line, true)
-			p.aliases[pkg] = append(p.aliases[pkg], alias)
 
-			p.comment[pkg] = []string{comment}
-			pkgType := getPkgType(pkg, localFlag)
-			p.list[pkgType][pkg] = true
-			continue
+		case commentIndex > 0:
+			info := getPkgInfo(line, true)
+			pkgType := getPkgType(info.path, localFlag)
+			p.list[pkgType] = append(p.list[pkgType], info)
+			lastInfo = info
+
+		default:
+			info := getPkgInfo(line, false)
+			pkgType := getPkgType(info.path, localFlag)
+			p.list[pkgType] = append(p.list[pkgType], info)
+			lastInfo = info
 		}
-
-		pkg, alias, _ := getPkgInfo(line, false)
-		p.aliases[pkg] = append(p.aliases[pkg], alias)
-
-		pkgType := getPkgType(pkg, localFlag)
-		p.list[pkgType][pkg] = true
-		lastPkg = pkg
 	}
 
 	return p
@@ -106,32 +125,22 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 func (p *pkg) fmt() []byte {
 	ret := make([]string, 0, 100)
 
-	for pkgType := range []int{standard, remote, local} {
-		var pkgs []string
-		for pkg := range p.list[pkgType] {
-			pkgs = append(pkgs, pkg)
-		}
-		sort.Strings(pkgs)
+	for _, pkgType := range []pkgType{standard, remote, local} {
+		pkgs := p.list[pkgType]
+		sort.Sort(pkgs)
 
-		for _, s := range pkgs {
-			if len(p.comment[s]) > 0 {
+		for _, pkg := range pkgs {
+			if len(pkg.comment) > 0 {
 				ret = append(ret, linebreak)
-				for _, comment := range p.comment[s] {
+				for _, comment := range pkg.comment {
 					ret = append(ret, fmt.Sprintf("%s%s%s", indent, comment, linebreak))
 				}
 			}
 
-			if len(p.aliases[s]) > 0 {
-				sort.Strings(p.aliases[s])
-				for _, alias := range p.aliases[s] {
-					if alias != "" {
-						ret = append(ret, fmt.Sprintf("%s%s%s%s%s", indent, alias, blank, s, linebreak))
-					} else {
-						ret = append(ret, fmt.Sprintf("%s%s%s", indent, s, linebreak))
-					}
-				}
+			if pkg.alias != "" {
+				ret = append(ret, fmt.Sprintf("%s%s%s%s%s", indent, pkg.alias, blank, pkg.path, linebreak))
 			} else {
-				ret = append(ret, fmt.Sprintf("%s%s%s", indent, s, linebreak))
+				ret = append(ret, fmt.Sprintf("%s%s%s", indent, pkg.path, linebreak))
 			}
 		}
 
@@ -150,26 +159,42 @@ func (p *pkg) fmt() []byte {
 }
 
 // getPkgInfo assume line is a import path, and return (path, aliases, comment)
-func getPkgInfo(line string, comment bool) (string, string, string) {
+func getPkgInfo(line string, comment bool) *pkgInfo {
 	if comment {
 		s := strings.Split(line, commentFlag)
 		pkgArray := strings.Split(s[0], blank)
 		if len(pkgArray) > 1 {
-			return pkgArray[1], pkgArray[0], fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
+			return &pkgInfo{
+				path:    pkgArray[1],
+				alias:   pkgArray[0],
+				comment: []string{fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))},
+			}
 		} else {
-			return strings.TrimSpace(pkgArray[0]), "", fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
+			return &pkgInfo{
+				path:    strings.TrimSpace(pkgArray[0]),
+				alias:   "",
+				comment: []string{fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))},
+			}
 		}
 	} else {
 		pkgArray := strings.Split(line, blank)
 		if len(pkgArray) > 1 {
-			return pkgArray[1], pkgArray[0], ""
+			return &pkgInfo{
+				path:    pkgArray[1],
+				alias:   pkgArray[0],
+				comment: nil,
+			}
 		} else {
-			return pkgArray[0], "", ""
+			return &pkgInfo{
+				path:    pkgArray[0],
+				alias:   "",
+				comment: nil,
+			}
 		}
 	}
 }
 
-func getPkgType(line, localFlag string) int {
+func getPkgType(line, localFlag string) pkgType {
 	if !strings.Contains(line, dot) {
 		return standard
 	} else if strings.Contains(line, localFlag) {

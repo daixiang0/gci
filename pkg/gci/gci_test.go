@@ -184,6 +184,59 @@ import (
 )
 `,
 		},
+		{
+			name:      "with multiple aliases and above multiline comment on first",
+			localFlag: "github.com/daixiang0",
+			sourceImports: `
+import (
+	"fmt"
+	a "github.com/golang"
+	// a first line of comment
+	// a second line of comment
+	_ "github.com/golang"
+	"github.com/daixiang0"
+)
+`,
+			expectedImports: `
+import (
+	"fmt"
+
+	// a first line of comment
+	// a second line of comment
+	_ "github.com/golang"
+	a "github.com/golang"
+
+	"github.com/daixiang0"
+)
+`,
+		},
+		{
+			name:      "with multiple aliases and above multiline comment on second",
+			localFlag: "github.com/daixiang0",
+			sourceImports: `
+import (
+	"fmt"
+	// a first line of comment
+	// a second line of comment
+	a "github.com/golang"
+	_ "github.com/golang"
+	"github.com/daixiang0"
+)
+`,
+			expectedImports: `
+import (
+	"fmt"
+
+	_ "github.com/golang"
+
+	// a first line of comment
+	// a second line of comment
+	a "github.com/golang"
+
+	"github.com/daixiang0"
+)
+`,
+		},
 	}
 
 	for _, c := range testCases {

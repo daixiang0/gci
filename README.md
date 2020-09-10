@@ -204,6 +204,33 @@ import (
 )
 ```
 
+### with and without an alias and above multiline comment
+
+```go
+package main
+import (
+  "fmt"
+  "github.com/golang"
+  // a first line of comment
+  // a second line of comment
+  _ "github.com/golang"
+  "github.com/daixiang0"
+)
+```
+
+```go
+import (
+  "fmt"
+
+  // a first line of comment
+  // a second line of comment
+  _ "github.com/golang"
+  "github.com/golang"
+
+  "github.com/daixiang0"
+)
+```
+
 ## TODO
 
 - Support multi-3rd-party packages
