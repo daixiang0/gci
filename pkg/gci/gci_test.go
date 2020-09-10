@@ -96,6 +96,28 @@ import (
 `,
 		},
 		{
+			name:      "with and without an alias",
+			localFlag: "github.com/daixiang0",
+			sourceImports: `
+import (
+	"github.com/golang"
+	_ "github.com/golang"
+	"fmt"
+	"github.com/daixiang0"
+)
+`,
+			expectedImports: `
+import (
+	"fmt"
+
+	"github.com/golang"
+	_ "github.com/golang"
+
+	"github.com/daixiang0"
+)
+`,
+		},
+		{
 			name:      "with comment and aliases",
 			localFlag: "github.com/daixiang0",
 			sourceImports: `

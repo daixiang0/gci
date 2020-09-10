@@ -83,9 +83,7 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 			continue
 		} else if commentIndex > 0 {
 			pkg, alias, comment := getPkgInfo(line, true)
-			if alias != "" {
-				p.aliases[pkg] = append(p.aliases[pkg], alias)
-			}
+			p.aliases[pkg] = append(p.aliases[pkg], alias)
 
 			p.comment[pkg] = []string{comment}
 			pkgType := getPkgType(pkg, localFlag)
@@ -94,10 +92,7 @@ func newPkg(data [][]byte, localFlag string) *pkg {
 		}
 
 		pkg, alias, _ := getPkgInfo(line, false)
-
-		if alias != "" {
-			p.aliases[pkg] = append(p.aliases[pkg], alias)
-		}
+		p.aliases[pkg] = append(p.aliases[pkg], alias)
 
 		pkgType := getPkgType(pkg, localFlag)
 		p.list[pkgType][pkg] = true
@@ -129,7 +124,11 @@ func (p *pkg) fmt() []byte {
 			if len(p.aliases[s]) > 0 {
 				sort.Strings(p.aliases[s])
 				for _, alias := range p.aliases[s] {
-					ret = append(ret, fmt.Sprintf("%s%s%s%s%s", indent, alias, blank, s, linebreak))
+					if alias != "" {
+						ret = append(ret, fmt.Sprintf("%s%s%s%s%s", indent, alias, blank, s, linebreak))
+					} else {
+						ret = append(ret, fmt.Sprintf("%s%s%s", indent, s, linebreak))
+					}
 				}
 			} else {
 				ret = append(ret, fmt.Sprintf("%s%s%s", indent, s, linebreak))

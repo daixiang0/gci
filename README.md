@@ -101,6 +101,32 @@ import (
 )
 ```
 
+### with and without an alias
+
+```go
+package main
+import (
+  "fmt"
+  "github.com/golang"
+  _ "github.com/golang"
+  "github.com/daixiang0"
+)
+```
+
+to
+
+```go
+package main
+import (
+  "fmt"
+
+  "github.com/golang"
+  _ "github.com/golang"
+
+  "github.com/daixiang0/gci"
+)
+```
+
 ### with comment and alias
 
 ```go
