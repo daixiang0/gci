@@ -285,7 +285,6 @@ func processFile(filename string, out io.Writer, set *FlagSet) error {
 	start := bytes.Index(src, importStartFlag)
 	// in case no importStartFlag or importStartFlag exist in the commentFlag
 	if start < 0 {
-		fmt.Printf("skip file %s since no import\n", filename)
 		return nil
 	}
 	end := bytes.Index(src[start:], importEndFlag) + start
