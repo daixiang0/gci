@@ -158,13 +158,12 @@ func getPkgInfo(line string, comment bool) (string, string, string) {
 }
 
 func getPkgType(line, localFlag string) int {
-	if !strings.Contains(line, dot) {
-		return standard
-	} else if strings.Contains(line, localFlag) {
+	if strings.HasPrefix(strings.TrimLeft(line, "\"\\`"), localFlag) {
 		return local
-	} else {
-		return remote
+	} else if !strings.Contains(line, dot) {
+		return standard
 	}
+	return remote
 }
 
 const (
