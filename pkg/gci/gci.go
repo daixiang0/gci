@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"golang.org/x/tools/go/packages"
 )
 
 const (
@@ -30,7 +32,24 @@ import (
 	importEndFlag = []byte(`
 )
 `)
+	standardPackages = make(map[string]struct{})
 )
+
+func init() {
+	pkgs, err := packages.Load(nil, "std")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, p := range pkgs {
+		standardPackages[p.PkgPath] = struct{}{}
+	}
+}
+
+func isStandardPackage(pkg string) bool {
+	_, ok := standardPackages[pkg]
+	return ok
+}
 
 type FlagSet struct {
 	LocalFlag       string
@@ -158,17 +177,16 @@ func getPkgInfo(line string, comment bool) (string, string, string) {
 }
 
 func getPkgType(line, localFlag string) int {
-	if !strings.Contains(line, dot) {
-		return standard
-	} else if strings.Contains(line, localFlag) {
+	pkgName := strings.Trim(line, "\"\\`")
+	if strings.HasPrefix(pkgName, localFlag) {
 		return local
-	} else {
-		return remote
+	} else if isStandardPackage(pkgName) {
+		return standard
 	}
+	return remote
 }
 
 const (
-	dot       = "."
 	blank     = " "
 	indent    = "\t"
 	linebreak = "\n"
