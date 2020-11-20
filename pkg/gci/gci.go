@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"golang.org/x/tools/go/packages"
 )
 
 const (
@@ -32,24 +30,7 @@ import (
 	importEndFlag = []byte(`
 )
 `)
-	standardPackages = make(map[string]struct{})
 )
-
-func init() {
-	pkgs, err := packages.Load(nil, "std")
-	if err != nil {
-		panic(err)
-	}
-
-	for _, p := range pkgs {
-		standardPackages[p.PkgPath] = struct{}{}
-	}
-}
-
-func isStandardPackage(pkg string) bool {
-	_, ok := standardPackages[pkg]
-	return ok
-}
 
 type FlagSet struct {
 	LocalFlag       string
