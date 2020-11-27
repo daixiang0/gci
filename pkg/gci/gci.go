@@ -248,7 +248,7 @@ func replaceTempFilename(diff []byte, filename string) ([]byte, error) {
 func visitFile(set *FlagSet) filepath.WalkFunc {
 	return func(path string, f os.FileInfo, err error) error {
 		if err == nil && isGoFile(f) {
-			err = processFile(path, os.Stdout, set)
+			err = ProcessFile(path, os.Stdout, set)
 		}
 		return err
 	}
@@ -264,39 +264,55 @@ func isGoFile(f os.FileInfo) bool {
 	return !f.IsDir() && !strings.HasPrefix(name, ".") && strings.HasSuffix(name, ".go")
 }
 
-func ProcessFile(filename string, out io.Writer, set *FlagSet) error {
-	return processFile(filename, out, set)
-}
-
-func processFile(filename string, out io.Writer, set *FlagSet) error {
+func readFile(filename string) ([]byte, error) {
 	var err error
 
 	f, err := os.Open(filename)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer f.Close()
 
 	src, err := ioutil.ReadAll(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return src, nil
+}
+
+func ProcessImports(src []byte, localFlag string) []byte {
+	start := bytes.Index(src, importStartFlag)
+	// in case no importStartFlag or importStartFlag exist in the commentFlag
+	if start < 0 {
+		return nil
+	}
+
+	end := bytes.Index(src[start:], importEndFlag) + start
+
+	ret := bytes.Split(src[start+len(importStartFlag):end], []byte(linebreak))
+
+	p := newPkg(ret, localFlag)
+
+	res := append(src[:start+len(importStartFlag)], append(p.fmt(), src[end+1:]...)...)
+
+	return res
+}
+
+func ProcessFile(filename string, out io.Writer, set *FlagSet) error {
+	src, err := readFile(filename)
 	if err != nil {
 		return err
 	}
 
 	ori := make([]byte, len(src))
 	copy(ori, src)
-	start := bytes.Index(src, importStartFlag)
-	// in case no importStartFlag or importStartFlag exist in the commentFlag
-	if start < 0 {
+
+	res := ProcessImports(src, set.LocalFlag)
+	if res == nil {
 		fmt.Printf("skip file %s since no import\n", filename)
 		return nil
 	}
-	end := bytes.Index(src[start:], importEndFlag) + start
-
-	ret := bytes.Split(src[start+len(importStartFlag):end], []byte(linebreak))
-
-	p := newPkg(ret, set.LocalFlag)
-
-	res := append(src[:start+len(importStartFlag)], append(p.fmt(), src[end+1:]...)...)
 
 	if !bytes.Equal(ori, res) {
 		if *set.DoWrite {
@@ -332,33 +348,19 @@ func processFile(filename string, out io.Writer, set *FlagSet) error {
 
 // Run return source and result in []byte if succeed
 func Run(filename string, set *FlagSet) ([]byte, []byte, error) {
-	var err error
-
-	f, err := os.Open(filename)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer f.Close()
-
-	src, err := ioutil.ReadAll(f)
+	src, err := readFile(filename)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	ori := make([]byte, len(src))
 	copy(ori, src)
-	start := bytes.Index(src, importStartFlag)
-	// in case no importStartFlag or importStartFlag exist in the commentFlag
-	if start < 0 {
+
+	res := ProcessImports(src, set.LocalFlag)
+	// in case the file is skipped
+	if res == nil {
 		return nil, nil, nil
 	}
-	end := bytes.Index(src[start:], importEndFlag) + start
-
-	ret := bytes.Split(src[start+len(importStartFlag):end], []byte(linebreak))
-
-	p := newPkg(ret, set.LocalFlag)
-
-	res := append(src[:start+len(importStartFlag)], append(p.fmt(), src[end+1:]...)...)
 
 	if bytes.Equal(ori, res) {
 		return ori, nil, nil
