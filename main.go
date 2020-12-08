@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/daixiang0/gci/pkg/gci"
 	"go/scanner"
 	"os"
+
+	"github.com/daixiang0/gci/pkg/gci"
 )
 
 var (

@@ -178,11 +178,15 @@ func getPkgInfo(line string, comment bool) (string, string, string) {
 
 func getPkgType(line, localFlag string) int {
 	pkgName := strings.Trim(line, "\"\\`")
-	if strings.HasPrefix(pkgName, localFlag) {
+
+	if localFlag != "" && strings.HasPrefix(pkgName, localFlag) {
 		return local
-	} else if isStandardPackage(pkgName) {
+	}
+
+	if isStandardPackage(pkgName) {
 		return standard
 	}
+
 	return remote
 }
 

@@ -5,34 +5,44 @@ import (
 	"testing"
 )
 
-func TestGetPkgType(b *testing.T) {
+func TestGetPkgType(t *testing.T) {
 	testCases := []struct {
 		Line           string
 		LocalFlag      string
 		ExpectedResult int
 	}{
+		{Line: `"foo/pkg/bar"`, LocalFlag: "", ExpectedResult: remote},
 		{Line: `"foo/pkg/bar"`, LocalFlag: "foo", ExpectedResult: local},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "foo", ExpectedResult: remote},
-		{Line: `"context"`, LocalFlag: "foo", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "foo", ExpectedResult: standard},
 		{Line: `"foo/pkg/bar"`, LocalFlag: "bar", ExpectedResult: remote},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "bar", ExpectedResult: remote},
-		{Line: `"context"`, LocalFlag: "bar", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "bar", ExpectedResult: standard},
 		{Line: `"foo/pkg/bar"`, LocalFlag: "github.com/foo/bar", ExpectedResult: remote},
+
+		{Line: `"github.com/foo/bar"`, LocalFlag: "", ExpectedResult: remote},
+		{Line: `"github.com/foo/bar"`, LocalFlag: "foo", ExpectedResult: remote},
+		{Line: `"github.com/foo/bar"`, LocalFlag: "bar", ExpectedResult: remote},
 		{Line: `"github.com/foo/bar"`, LocalFlag: "github.com/foo/bar", ExpectedResult: local},
+
+		{Line: `"context"`, LocalFlag: "", ExpectedResult: standard},
+		{Line: `"context"`, LocalFlag: "context", ExpectedResult: local},
+		{Line: `"context"`, LocalFlag: "foo", ExpectedResult: standard},
+		{Line: `"context"`, LocalFlag: "bar", ExpectedResult: standard},
 		{Line: `"context"`, LocalFlag: "github.com/foo/bar", ExpectedResult: standard},
+
+		{Line: `"os/signal"`, LocalFlag: "", ExpectedResult: standard},
+		{Line: `"os/signal"`, LocalFlag: "os/signal", ExpectedResult: local},
+		{Line: `"os/signal"`, LocalFlag: "foo", ExpectedResult: standard},
+		{Line: `"os/signal"`, LocalFlag: "bar", ExpectedResult: standard},
 		{Line: `"os/signal"`, LocalFlag: "github.com/foo/bar", ExpectedResult: standard},
 	}
 
-	for _, _tCase := range testCases {
-		tCase := _tCase
-		testFn := func(t *testing.T) {
-			result := getPkgType(tCase.Line, tCase.LocalFlag)
-			if got, want := result, tCase.ExpectedResult; got != want {
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(fmt.Sprintf("%s:%s", tc.Line, tc.LocalFlag), func(t *testing.T) {
+			t.Parallel()
+
+			result := getPkgType(tc.Line, tc.LocalFlag)
+			if got, want := result, tc.ExpectedResult; got != want {
 				t.Errorf("bad result: %d, expected: %d", got, want)
 			}
-		}
-		b.Run(fmt.Sprintf("%s:%s", tCase.LocalFlag, tCase.Line), testFn)
+		})
 	}
 }
