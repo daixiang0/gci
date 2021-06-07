@@ -126,7 +126,7 @@ func (p *pkg) fmt() []byte {
 			ret = append(ret, linebreak)
 		}
 	}
-	if ret[len(ret)-1] == linebreak {
+	if len(ret) > 0 && ret[len(ret)-1] == linebreak {
 		ret = ret[:len(ret)-1]
 	}
 
@@ -353,6 +353,11 @@ func Run(filename string, set *FlagSet) ([]byte, []byte, error) {
 		return nil, nil, nil
 	}
 	end := bytes.Index(src[start:], importEndFlag) + start
+	
+	// in case import flags are part of a codegen template, or otherwise "wrong"
+	if start+len(importStartFlag) > end {
+		return nil, nil, nil
+	}
 
 	ret := bytes.Split(src[start+len(importStartFlag):end], []byte(linebreak))
 
