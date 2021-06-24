@@ -13,7 +13,7 @@ var (
 	doWrite = flag.Bool("w", false, "doWrite result to (source) file instead of stdout")
 	doDiff  = flag.Bool("d", false, "display diffs instead of rewriting files")
 
-	localFlag string
+	localFlag []string
 
 	exitCode = 0
 )
@@ -27,9 +27,11 @@ func report(err error) {
 }
 
 func parseFlags() []string {
-	flag.StringVar(&localFlag, "local", "", "put imports beginning with this string after 3rd-party packages, only support one string")
+	var localFlagStr string
+	flag.StringVar(&localFlagStr, "local", "", "put imports beginning with this string after 3rd-party packages; comma-separated list")
 
 	flag.Parse()
+	localFlag = gci.ParseLocalFlag(localFlagStr)
 	return flag.Args()
 }
 
