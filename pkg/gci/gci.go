@@ -112,37 +112,33 @@ func newPkg(data [][]byte, localFlag []string) *pkg {
 
 // fmt format import pkgs as expected
 func (p *pkg) fmt() []byte {
-	ret := make([]string, 0, 100)
+	var lines []string
 
 	for _, pkgType := range []PkgType{standard, remote, local} {
+		if len(p.list[pkgType]) == 0 {
+			continue
+		}
+		if len(lines) > 0 && lines[len(lines)-1] != "" {
+			lines = append(lines, "")
+		}
 		sort.Strings(p.list[pkgType])
 		for _, s := range p.list[pkgType] {
 			if p.comment[s] != "" {
-				l := fmt.Sprintf("%s%s%s%s", linebreak, indent, p.comment[s], linebreak)
-				ret = append(ret, l)
+				if len(lines) > 0 && lines[len(lines)-1] != "" {
+					lines = append(lines, "")
+				}
+				lines = append(lines, indent+p.comment[s])
 			}
 
 			if p.alias[s] != "" {
-				s = fmt.Sprintf("%s%s%s%s%s", indent, p.alias[s], blank, s, linebreak)
+				lines = append(lines, indent+p.alias[s]+blank+s)
 			} else {
-				s = fmt.Sprintf("%s%s%s", indent, s, linebreak)
+				lines = append(lines, indent+s)
 			}
-
-			ret = append(ret, s)
-		}
-
-		if len(p.list[pkgType]) > 0 {
-			ret = append(ret, linebreak)
 		}
 	}
-	if len(ret) > 0 && ret[len(ret)-1] == linebreak {
-		ret = ret[:len(ret)-1]
-	}
 
-	// remove duplicate empty lines
-	s1 := fmt.Sprintf("%s%s%s%s", linebreak, linebreak, linebreak, indent)
-	s2 := fmt.Sprintf("%s%s%s", linebreak, linebreak, indent)
-	return []byte(strings.ReplaceAll(strings.Join(ret, ""), s1, s2))
+	return []byte(strings.Join(lines, linebreak) + linebreak)
 }
 
 // getPkgInfo assume line is a import path, and return (path, alias, comment)
