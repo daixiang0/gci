@@ -144,7 +144,7 @@ func (p *pkg) fmt() []byte {
 // getPkgInfo assume line is a import path, and return (path, alias, comment)
 func getPkgInfo(line string, comment bool) (string, string, string) {
 	if comment {
-		s := strings.Split(line, commentFlag)
+		s := strings.SplitN(line, commentFlag, 2)
 		pkgArray := strings.Fields(s[0])
 		if len(pkgArray) > 1 {
 			return pkgArray[1], pkgArray[0], fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
