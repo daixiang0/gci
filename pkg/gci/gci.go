@@ -148,14 +148,14 @@ func (p *pkg) fmt() []byte {
 func getPkgInfo(line string, comment bool) (string, string, string) {
 	if comment {
 		s := strings.Split(line, commentFlag)
-		pkgArray := strings.Split(s[0], blank)
+		pkgArray := strings.Fields(s[0])
 		if len(pkgArray) > 1 {
 			return pkgArray[1], pkgArray[0], fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
 		} else {
-			return strings.TrimSpace(pkgArray[0]), "", fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
+			return pkgArray[0], "", fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
 		}
 	} else {
-		pkgArray := strings.Split(line, blank)
+		pkgArray := strings.Fields(line)
 		if len(pkgArray) > 1 {
 			return pkgArray[1], pkgArray[0], ""
 		} else {
@@ -363,7 +363,7 @@ func Run(filename string, set *FlagSet) ([]byte, []byte, error) {
 		return nil, nil, nil
 	}
 	end := bytes.Index(src[start:], importEndFlag) + start
-	
+
 	// in case import flags are part of a codegen template, or otherwise "wrong"
 	if start+len(importStartFlag) > end {
 		return nil, nil, nil
