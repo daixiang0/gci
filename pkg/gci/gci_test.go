@@ -15,7 +15,7 @@ func TestGetPkgType(t *testing.T) {
 	testCases := []struct {
 		Line           string
 		LocalFlag      string
-		ExpectedResult int
+		ExpectedResult PkgType
 	}{
 		{Line: `"foo/pkg/bar"`, LocalFlag: "", ExpectedResult: remote},
 		{Line: `"foo/pkg/bar"`, LocalFlag: "foo", ExpectedResult: local},

@@ -12,13 +12,17 @@ import (
 	"strings"
 )
 
+type PkgType int
+
 const (
 	// pkg type: standard, remote, local
-	standard int = iota
+	standard PkgType = iota
 	// 3rd-party packages
 	remote
 	local
+)
 
+const (
 	commentFlag = "//"
 )
 
@@ -37,7 +41,7 @@ type FlagSet struct {
 }
 
 type pkg struct {
-	list    map[int][]string
+	list    map[PkgType][]string
 	comment map[string]string
 	alias   map[string]string
 }
@@ -51,13 +55,10 @@ func ParseLocalFlag(str string) []string {
 }
 
 func newPkg(data [][]byte, localFlag []string) *pkg {
-	listMap := make(map[int][]string)
-	commentMap := make(map[string]string)
-	aliasMap := make(map[string]string)
 	p := &pkg{
-		list:    listMap,
-		comment: commentMap,
-		alias:   aliasMap,
+		list:    make(map[PkgType][]string),
+		comment: make(map[string]string),
+		alias:   make(map[string]string),
 	}
 
 	formatData := make([]string, 0)
@@ -113,7 +114,7 @@ func newPkg(data [][]byte, localFlag []string) *pkg {
 func (p *pkg) fmt() []byte {
 	ret := make([]string, 0, 100)
 
-	for pkgType := range []int{standard, remote, local} {
+	for _, pkgType := range []PkgType{standard, remote, local} {
 		sort.Strings(p.list[pkgType])
 		for _, s := range p.list[pkgType] {
 			if p.comment[s] != "" {
@@ -164,7 +165,7 @@ func getPkgInfo(line string, comment bool) (string, string, string) {
 	}
 }
 
-func getPkgType(line string, localFlag []string) int {
+func getPkgType(line string, localFlag []string) PkgType {
 	pkgName := strings.Trim(line, "\"\\`")
 
 	for _, localPkg := range localFlag {
