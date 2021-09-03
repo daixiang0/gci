@@ -147,9 +147,9 @@ func getPkgInfo(line string, comment bool) (string, string, string) {
 		s := strings.SplitN(line, commentFlag, 2)
 		pkgArray := strings.Fields(s[0])
 		if len(pkgArray) > 1 {
-			return pkgArray[1], pkgArray[0], fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
+			return pkgArray[1], pkgArray[0], commentFlag + s[1]
 		} else {
-			return pkgArray[0], "", fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
+			return pkgArray[0], "", commentFlag + s[1]
 		}
 	} else {
 		pkgArray := strings.Fields(line)
