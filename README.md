@@ -58,7 +58,7 @@ package main
 import (
   "fmt"
   go "github.com/golang"
-  "github.com/daixiang0"
+  "github.com/daixiang0/gci"
 )
 ```
 
@@ -82,7 +82,7 @@ package main
 import (
   "fmt"
   _ "github.com/golang" // golang
-  "github.com/daixiang0"
+  "github.com/daixiang0/gci"
 )
 ```
 
@@ -108,7 +108,7 @@ import (
   "fmt"
   // golang
   _ "github.com/golang"
-  "github.com/daixiang0"
+  "github.com/daixiang0/gci"
 )
 ```
 
@@ -129,4 +129,4 @@ import (
 ## TODO
 
 - Support multiple lines of comment in import block
-- Add testcases
+- Add more testcases

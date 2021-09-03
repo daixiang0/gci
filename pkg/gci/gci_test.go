@@ -1,8 +1,14 @@
 package gci
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
+	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetPkgType(t *testing.T) {
@@ -59,6 +65,52 @@ func TestGetPkgType(t *testing.T) {
 			if got, want := result, tc.ExpectedResult; got != want {
 				t.Errorf("bad result: %d, expected: %d", got, want)
 			}
+		})
+	}
+}
+
+func TestRun(t *testing.T) {
+	fileinfos, err := ioutil.ReadDir("testdata")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, fileinfo := range fileinfos {
+		inname := fileinfo.Name()
+		if strings.HasPrefix(inname, ".") || !strings.HasSuffix(inname, ".in.go") {
+			continue
+		}
+		name := strings.TrimSuffix(inname, ".in.go")
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			expectedInput, err := ioutil.ReadFile(filepath.Join("testdata", inname))
+			if err != nil {
+				t.Fatal(err)
+			}
+			outname := name + ".out.go"
+			expectedOutput, err := ioutil.ReadFile(filepath.Join("testdata", outname))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			flagSet := &FlagSet{
+				LocalFlag: []string{
+					"github.com/daixiang0",
+					"github.com/local",
+				},
+			}
+
+			actualInput, actualOutput, err := Run(filepath.Join("testdata", inname), flagSet)
+			assert.Equal(t, string(expectedInput), string(actualInput), "input")
+			if bytes.Equal(expectedInput, expectedOutput) {
+				assert.Nil(t, actualOutput, "output")
+
+			}
+			if actualOutput == nil {
+				actualOutput = actualInput
+			}
+			assert.Equal(t, string(expectedOutput), string(actualOutput), "output")
+			assert.NoError(t, err)
 		})
 	}
 }
