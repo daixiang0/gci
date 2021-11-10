@@ -51,6 +51,13 @@ func main() {
 		DoDiff:    doDiff,
 	}
 
+	if len(paths) == 0 {
+		if err := gci.ProcessFile("<standard input>", os.Stdin, os.Stdout, flagSet); err != nil {
+			report(err)
+		}
+		os.Exit(exitCode)
+	}
+
 	for _, path := range paths {
 		switch dir, err := os.Stat(path); {
 		case err != nil:
@@ -58,7 +65,7 @@ func main() {
 		case dir.IsDir():
 			report(gci.WalkDir(path, flagSet))
 		default:
-			if err := gci.ProcessFile(path, os.Stdout, flagSet); err != nil {
+			if err := gci.ProcessFile(path, nil, os.Stdout, flagSet); err != nil {
 				report(err)
 			}
 		}
