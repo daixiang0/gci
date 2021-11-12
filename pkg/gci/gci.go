@@ -258,7 +258,7 @@ func replaceTempFilename(diff []byte, filename string) ([]byte, error) {
 func visitFile(set *FlagSet) filepath.WalkFunc {
 	return func(path string, f os.FileInfo, err error) error {
 		if err == nil && isGoFile(f) {
-			err = processFile(path, os.Stdout, set)
+			err = processFile(path, nil, os.Stdout, set)
 		}
 		return err
 	}
@@ -274,20 +274,23 @@ func isGoFile(f os.FileInfo) bool {
 	return !f.IsDir() && !strings.HasPrefix(name, ".") && strings.HasSuffix(name, ".go")
 }
 
-func ProcessFile(filename string, out io.Writer, set *FlagSet) error {
-	return processFile(filename, out, set)
+func ProcessFile(filename string, in io.Reader, out io.Writer, set *FlagSet) error {
+	return processFile(filename, in, out, set)
 }
 
-func processFile(filename string, out io.Writer, set *FlagSet) error {
+func processFile(filename string, in io.Reader, out io.Writer, set *FlagSet) error {
 	var err error
 
-	f, err := os.Open(filename)
-	if err != nil {
-		return err
+	if in == nil {
+		f, err := os.Open(filename)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		in = f
 	}
-	defer f.Close()
 
-	src, err := ioutil.ReadAll(f)
+	src, err := ioutil.ReadAll(in)
 	if err != nil {
 		return err
 	}
