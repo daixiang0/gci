@@ -12,13 +12,17 @@ import (
 	"strings"
 )
 
+type PkgType int
+
 const (
 	// pkg type: standard, remote, local
-	standard int = iota
+	standard PkgType = iota
 	// 3rd-party packages
 	remote
 	local
+)
 
+const (
 	commentFlag = "//"
 )
 
@@ -37,7 +41,7 @@ type FlagSet struct {
 }
 
 type pkg struct {
-	list    map[int][]string
+	list    map[PkgType][]string
 	comment map[string]string
 	alias   map[string]string
 }
@@ -51,13 +55,10 @@ func ParseLocalFlag(str string) []string {
 }
 
 func newPkg(data [][]byte, localFlag []string) *pkg {
-	listMap := make(map[int][]string)
-	commentMap := make(map[string]string)
-	aliasMap := make(map[string]string)
 	p := &pkg{
-		list:    listMap,
-		comment: commentMap,
-		alias:   aliasMap,
+		list:    make(map[PkgType][]string),
+		comment: make(map[string]string),
+		alias:   make(map[string]string),
 	}
 
 	formatData := make([]string, 0)
@@ -111,51 +112,47 @@ func newPkg(data [][]byte, localFlag []string) *pkg {
 
 // fmt format import pkgs as expected
 func (p *pkg) fmt() []byte {
-	ret := make([]string, 0, 100)
+	var lines []string
 
-	for pkgType := range []int{standard, remote, local} {
+	for _, pkgType := range []PkgType{standard, remote, local} {
+		if len(p.list[pkgType]) == 0 {
+			continue
+		}
+		if len(lines) > 0 && lines[len(lines)-1] != "" {
+			lines = append(lines, "")
+		}
 		sort.Strings(p.list[pkgType])
 		for _, s := range p.list[pkgType] {
 			if p.comment[s] != "" {
-				l := fmt.Sprintf("%s%s%s%s", linebreak, indent, p.comment[s], linebreak)
-				ret = append(ret, l)
+				if len(lines) > 0 && lines[len(lines)-1] != "" {
+					lines = append(lines, "")
+				}
+				lines = append(lines, indent+p.comment[s])
 			}
 
 			if p.alias[s] != "" {
-				s = fmt.Sprintf("%s%s%s%s%s", indent, p.alias[s], blank, s, linebreak)
+				lines = append(lines, indent+p.alias[s]+blank+s)
 			} else {
-				s = fmt.Sprintf("%s%s%s", indent, s, linebreak)
+				lines = append(lines, indent+s)
 			}
-
-			ret = append(ret, s)
-		}
-
-		if len(p.list[pkgType]) > 0 {
-			ret = append(ret, linebreak)
 		}
 	}
-	if len(ret) > 0 && ret[len(ret)-1] == linebreak {
-		ret = ret[:len(ret)-1]
-	}
 
-	// remove duplicate empty lines
-	s1 := fmt.Sprintf("%s%s%s%s", linebreak, linebreak, linebreak, indent)
-	s2 := fmt.Sprintf("%s%s%s", linebreak, linebreak, indent)
-	return []byte(strings.ReplaceAll(strings.Join(ret, ""), s1, s2))
+	return []byte(strings.Join(lines, linebreak) + linebreak)
 }
 
 // getPkgInfo assume line is a import path, and return (path, alias, comment)
 func getPkgInfo(line string, comment bool) (string, string, string) {
 	if comment {
-		s := strings.Split(line, commentFlag)
-		pkgArray := strings.Split(s[0], blank)
+		s := strings.SplitN(line, commentFlag, 2)
+		pkgArray := strings.Fields(s[0])
 		if len(pkgArray) > 1 {
-			return pkgArray[1], pkgArray[0], fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
+			return pkgArray[1], pkgArray[0], commentFlag + s[1]
 		} else {
-			return strings.TrimSpace(pkgArray[0]), "", fmt.Sprintf("%s%s%s", commentFlag, blank, strings.TrimSpace(s[1]))
+			return pkgArray[0], "", commentFlag + s[1]
 		}
 	} else {
-		pkgArray := strings.Split(line, blank)
+		pkgArray := strings.Fields(line)
 		if len(pkgArray) > 1 {
 			return pkgArray[1], pkgArray[0], ""
 		} else {
@@ -164,7 +161,7 @@ func getPkgInfo(line string, comment bool) (string, string, string) {
 	}
 }
 
-func getPkgType(line string, localFlag []string) int {
+func getPkgType(line string, localFlag []string) PkgType {
 	pkgName := strings.Trim(line, "\"\\`")
 
 	for _, localPkg := range localFlag {
@@ -366,7 +363,7 @@ func Run(filename string, set *FlagSet) ([]byte, []byte, error) {
 		return nil, nil, nil
 	}
 	end := bytes.Index(src[start:], importEndFlag) + start
-	
+
 	// in case import flags are part of a codegen template, or otherwise "wrong"
 	if start+len(importStartFlag) > end {
 		return nil, nil, nil
