@@ -69,3 +69,47 @@ func TestInitGciConfigFromYAML(t *testing.T) {
 	assert.True(t, gciCfg.NoInlineComments)
 	assert.True(t, gciCfg.NoPrefixComments)
 }
+
+func TestSkippingOverIncorrectlyFormattedFiles(t *testing.T) {
+	cfg, err := GciStringConfiguration{}.Parse()
+	assert.NoError(t, err)
+	validFileProcessedChan := make(chan bool, 1)
+
+	var importUnclosedCtr, noImportCtr, validCtr int
+	var files []io.FileObj
+	files = append(files, TestFile{io.File{"internal/skipTest/import-unclosed.testgo"}, &importUnclosedCtr})
+	files = append(files, TestFile{io.File{"internal/skipTest/no-import.testgo"}, &noImportCtr})
+	files = append(files, TestFile{io.File{"internal/skipTest/valid.testgo"}, &validCtr})
+
+	generatorFunc := func() ([]io.FileObj, error) {
+		return files, nil
+	}
+	fileAccessTestFunc := func(filePath string, unmodifiedFile, formattedFile []byte) error {
+		assert.Equal(t, "internal/skipTest/valid.testgo", filePath, "file should not have been processed")
+		validFileProcessedChan <- true
+		return nil
+	}
+	err = processFiles(generatorFunc, *cfg, fileAccessTestFunc)
+
+	assert.NoError(t, err)
+	// check all files have been accessed
+	assert.Equal(t, importUnclosedCtr, 1)
+	assert.Equal(t, noImportCtr, 1)
+	assert.Equal(t, validCtr, 1)
+	// check that processing for the valid file was called
+	assert.True(t, <-validFileProcessedChan)
+}
+
+type TestFile struct {
+	wrappedFile   io.File
+	accessCounter *int
+}
+
+func (t TestFile) Load() ([]byte, error) {
+	*t.accessCounter++
+	return t.wrappedFile.Load()
+}
+
+func (t TestFile) Path() string {
+	return t.wrappedFile.Path()
+}
