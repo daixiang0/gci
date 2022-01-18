@@ -1,4 +1,4 @@
-package gci
+package sections
 
 // Code generated based on go1.17.5. DO NOT EDIT.
 
@@ -154,9 +154,4 @@ var standardPackages = map[string]struct{}{
 	"unicode/utf16":        {},
 	"unicode/utf8":         {},
 	"unsafe":               {},
-}
-
-func isStandardPackage(pkg string) bool {
-	_, ok := standardPackages[pkg]
-	return ok
 }
