@@ -1,0 +1,8 @@
+sections:
+  - comment( Std imports):std:comment( Std imports)
+  - comment( Github):prefix(github.com):comment( Github)
+sectionseparators:
+  - newline
+  - comment( --------------------------)
+  - newline
+no-prefixComments: true
