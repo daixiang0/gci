@@ -13,10 +13,10 @@ import (
 
 //go:generate go run .
 
-const outputFile = "../pkg/gci/std.go"
+const outputFile = "../pkg/gci/sections/standardpackage_list.go"
 
 const stdTemplate = `
-package gci
+package sections
 
 // Code generated based on {{ .Version }}. DO NOT EDIT.
 
@@ -26,10 +26,6 @@ var standardPackages = map[string]struct{}{
 {{- end}}
 }
 
-func isStandardPackage(pkg string) bool {
-	_, ok := standardPackages[pkg]
-	return ok
-}
 `
 
 func main() {

@@ -1,64 +1,115 @@
 package gci
 
 import (
-	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"strings"
 	"testing"
+
+	"github.com/daixiang0/gci/pkg/gci/sections"
+	"github.com/daixiang0/gci/pkg/io"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestGetPkgType(t *testing.T) {
-	testCases := []struct {
-		Line           string
-		LocalFlag      string
-		ExpectedResult int
-	}{
-		{Line: `"foo/pkg/bar"`, LocalFlag: "", ExpectedResult: remote},
-		{Line: `"foo/pkg/bar"`, LocalFlag: "foo", ExpectedResult: local},
-		{Line: `"foo/pkg/bar"`, LocalFlag: "bar", ExpectedResult: remote},
-		{Line: `"foo/pkg/bar"`, LocalFlag: "github.com/foo/bar", ExpectedResult: remote},
-		{Line: `"foo/pkg/bar"`, LocalFlag: "github.com/foo", ExpectedResult: remote},
-		{Line: `"foo/pkg/bar"`, LocalFlag: "github.com/bar", ExpectedResult: remote},
-		{Line: `"foo/pkg/bar"`, LocalFlag: "github.com/foo,github.com/bar", ExpectedResult: remote},
-		{Line: `"foo/pkg/bar"`, LocalFlag: "github.com/foo,,github.com/bar", ExpectedResult: remote},
+var testFilesPath = "internal/testdata"
 
-		{Line: `"github.com/foo/bar"`, LocalFlag: "", ExpectedResult: remote},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "foo", ExpectedResult: remote},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "bar", ExpectedResult: remote},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "github.com/foo/bar", ExpectedResult: local},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "github.com/foo", ExpectedResult: local},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "github.com/bar", ExpectedResult: remote},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "github.com/foo,github.com/bar", ExpectedResult: local},
-		{Line: `"github.com/foo/bar"`, LocalFlag: "github.com/foo,,github.com/bar", ExpectedResult: local},
+func isTestInputFile(file os.FileInfo) bool {
+	return !file.IsDir() && strings.HasSuffix(file.Name(), ".in.go")
+}
 
-		{Line: `"context"`, LocalFlag: "", ExpectedResult: standard},
-		{Line: `"context"`, LocalFlag: "context", ExpectedResult: local},
-		{Line: `"context"`, LocalFlag: "foo", ExpectedResult: standard},
-		{Line: `"context"`, LocalFlag: "bar", ExpectedResult: standard},
-		{Line: `"context"`, LocalFlag: "github.com/foo/bar", ExpectedResult: standard},
-		{Line: `"context"`, LocalFlag: "github.com/foo", ExpectedResult: standard},
-		{Line: `"context"`, LocalFlag: "github.com/bar", ExpectedResult: standard},
-		{Line: `"context"`, LocalFlag: "github.com/foo,github.com/bar", ExpectedResult: standard},
-		{Line: `"context"`, LocalFlag: "github.com/foo,,github.com/bar", ExpectedResult: standard},
-
-		{Line: `"os/signal"`, LocalFlag: "", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "os/signal", ExpectedResult: local},
-		{Line: `"os/signal"`, LocalFlag: "foo", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "bar", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "github.com/foo/bar", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "github.com/foo", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "github.com/bar", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "github.com/foo,github.com/bar", ExpectedResult: standard},
-		{Line: `"os/signal"`, LocalFlag: "github.com/foo,,github.com/bar", ExpectedResult: standard},
+func TestRun(t *testing.T) {
+	testFiles, err := io.FindFilesForPath(testFilesPath, isTestInputFile)
+	if err != nil {
+		t.Fatal(err)
 	}
-
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(fmt.Sprintf("%s:%s", tc.Line, tc.LocalFlag), func(t *testing.T) {
+	for _, testFile := range testFiles {
+		fileBaseName := strings.TrimSuffix(testFile, ".in.go")
+		t.Run(fileBaseName, func(t *testing.T) {
 			t.Parallel()
 
-			result := getPkgType(tc.Line, ParseLocalFlag(tc.LocalFlag))
-			if got, want := result, tc.ExpectedResult; got != want {
-				t.Errorf("bad result: %d, expected: %d", got, want)
+			gciCfg, err := initializeGciConfigFromYAML(fileBaseName + ".cfg.yaml")
+			if err != nil {
+				t.Fatal(err)
 			}
+
+			_, formattedFile, err := LoadFormatGoFile(io.File{fileBaseName + ".in.go"}, *gciCfg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			expectedOutput, err := ioutil.ReadFile(fileBaseName + ".out.go")
+			if err != nil {
+				t.Fatal(err)
+			}
+			assert.Equal(t, string(expectedOutput), string(formattedFile), "output")
+			assert.NoError(t, err)
 		})
 	}
+}
+
+func TestInitGciConfigFromEmptyYAML(t *testing.T) {
+	gciCfg, err := initializeGciConfigFromYAML(path.Join(testFilesPath, "defaultValues.cfg.yaml"))
+	assert.NoError(t, err)
+	_ = gciCfg
+	assert.Equal(t, DefaultSections(), gciCfg.Sections)
+	assert.Equal(t, DefaultSectionSeparators(), gciCfg.SectionSeparators)
+	assert.False(t, gciCfg.Debug)
+	assert.False(t, gciCfg.NoInlineComments)
+	assert.False(t, gciCfg.NoPrefixComments)
+}
+
+func TestInitGciConfigFromYAML(t *testing.T) {
+	gciCfg, err := initializeGciConfigFromYAML(path.Join(testFilesPath, "configTest.cfg.yaml"))
+	assert.NoError(t, err)
+	_ = gciCfg
+	assert.Equal(t, SectionList{sections.DefaultSection{}}, gciCfg.Sections)
+	assert.Equal(t, SectionList{sections.CommentLine{"---"}}, gciCfg.SectionSeparators)
+	assert.False(t, gciCfg.Debug)
+	assert.True(t, gciCfg.NoInlineComments)
+	assert.True(t, gciCfg.NoPrefixComments)
+}
+
+func TestSkippingOverIncorrectlyFormattedFiles(t *testing.T) {
+	cfg, err := GciStringConfiguration{}.Parse()
+	assert.NoError(t, err)
+	validFileProcessedChan := make(chan bool, 1)
+
+	var importUnclosedCtr, noImportCtr, validCtr int
+	var files []io.FileObj
+	files = append(files, TestFile{io.File{"internal/skipTest/import-unclosed.testgo"}, &importUnclosedCtr})
+	files = append(files, TestFile{io.File{"internal/skipTest/no-import.testgo"}, &noImportCtr})
+	files = append(files, TestFile{io.File{"internal/skipTest/valid.testgo"}, &validCtr})
+
+	generatorFunc := func() ([]io.FileObj, error) {
+		return files, nil
+	}
+	fileAccessTestFunc := func(filePath string, unmodifiedFile, formattedFile []byte) error {
+		assert.Equal(t, "internal/skipTest/valid.testgo", filePath, "file should not have been processed")
+		validFileProcessedChan <- true
+		return nil
+	}
+	err = processFiles(generatorFunc, *cfg, fileAccessTestFunc)
+
+	assert.NoError(t, err)
+	// check all files have been accessed
+	assert.Equal(t, importUnclosedCtr, 1)
+	assert.Equal(t, noImportCtr, 1)
+	assert.Equal(t, validCtr, 1)
+	// check that processing for the valid file was called
+	assert.True(t, <-validFileProcessedChan)
+}
+
+type TestFile struct {
+	wrappedFile   io.File
+	accessCounter *int
+}
+
+func (t TestFile) Load() ([]byte, error) {
+	*t.accessCounter++
+	return t.wrappedFile.Load()
+}
+
+func (t TestFile) Path() string {
+	return t.wrappedFile.Path()
 }
