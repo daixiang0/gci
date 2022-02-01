@@ -38,7 +38,7 @@ func (i ImportDef) Validate() error {
 func checkAlias(alias string) error {
 	for idx, r := range alias {
 		if !unicode.IsLetter(r) {
-			if r != '_' {
+			if r != '_' && r != '.' {
 				if idx == 0 || !unicode.IsDigit(r) {
 					// aliases may not start with a digit
 					return InvalidCharacterError{r, alias}
