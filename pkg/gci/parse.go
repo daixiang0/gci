@@ -23,33 +23,37 @@ func parseToImportDefinitions(unformattedLines []string) ([]importPkg.ImportDef,
 			continue
 		}
 
-		// FIXME: this doesn't correctly handle block comments that start part-way through a line or end part-way through a line, for example:
-		//   /* some comment */ "golang.org/x/tools"
-		// Or:
-		//  /* some comment
-		//  */ "golang.org/x/tools"
-		//
-		// It only supports block comments that start and end on their own line, for example:
-		//   /* some comment */
-		//   "golang.org/x/tools"
-		// Or:
-		//   /*
-		//     some comment
-		//   */
-		//   "golang.org/x/tools"
-		if inBlockComment {
-			if strings.HasSuffix(line, constants.BlockCommentEndFlag) {
-				inBlockComment = false
-			} else {
-				line = "\t" + line
+		if blockCommentStartsOnThisLine := strings.HasPrefix(line, constants.BlockCommentStartFlag); inBlockComment || blockCommentStartsOnThisLine {
+			blockCommentEndIndex := strings.Index(line, constants.BlockCommentEndFlag)
+			blockCommentEndsOnThisLine := blockCommentEndIndex != -1
+			contentStartsAtIndex := 0
+			contentEndsAtIndex := len(line)
+
+			if blockCommentStartsOnThisLine {
+				newImport.PrefixComment = append(newImport.PrefixComment, constants.BlockCommentStartFlag)
+				contentStartsAtIndex = len(constants.BlockCommentStartFlag)
 			}
 
-			newImport.PrefixComment = append(newImport.PrefixComment, line)
-			continue
-		} else if strings.HasPrefix(line, constants.BlockCommentStartFlag) {
-			inBlockComment = true
-			newImport.PrefixComment = append(newImport.PrefixComment, line)
-			continue
+			if blockCommentEndsOnThisLine {
+				contentEndsAtIndex = blockCommentEndIndex
+			}
+
+			if content := strings.TrimSpace(line[contentStartsAtIndex:contentEndsAtIndex]); content != "" {
+				newImport.PrefixComment = append(newImport.PrefixComment, "\t"+content)
+			}
+
+			inBlockComment = !blockCommentEndsOnThisLine
+
+			if !blockCommentEndsOnThisLine {
+				continue
+			}
+
+			newImport.PrefixComment = append(newImport.PrefixComment, constants.BlockCommentEndFlag)
+			line = line[blockCommentEndIndex+len(constants.BlockCommentEndFlag):]
+
+			if line == "" {
+				continue
+			}
 		}
 
 		// split inline comment from import
