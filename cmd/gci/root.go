@@ -6,9 +6,19 @@ import (
 
 	"github.com/daixiang0/gci/pkg/configuration"
 	"github.com/daixiang0/gci/pkg/gci"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors: true,
+		FullTimestamp: true,
+	})
+
+	log.SetOutput(os.Stderr)
+}
 
 type Executor struct {
 	rootCmd    *cobra.Command
@@ -57,6 +67,10 @@ func (e *Executor) runInCompatibilityMode(cmd *cobra.Command, args []string) err
 	sections := gci.LocalFlagsToSections(*e.localFlags)
 	sectionSeparators := gci.DefaultSectionSeparators()
 	cfg := gci.GciConfiguration{configuration.FormatterConfiguration{false, false, false}, sections, sectionSeparators}
+	if cfg.Debug {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	if *e.writeMode {
 		return gci.WriteFormattedFiles(args, cfg)
 	}
