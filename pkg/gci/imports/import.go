@@ -56,7 +56,7 @@ func (i ImportDef) String() string {
 func (i ImportDef) Format(cfg configuration.FormatterConfiguration) string {
 	linePrefix := constants.Indent
 	var output string
-	if cfg.NoPrefixComments == false {
+	if cfg.NoPrefixComments == false || i.QuotedPath == `"C"` {
 		for _, prefixComment := range i.PrefixComment {
 			output += linePrefix + prefixComment + constants.Linebreak
 		}
