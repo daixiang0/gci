@@ -13,7 +13,7 @@ import (
 
 func init() {
 	log.SetFormatter(&log.TextFormatter{
-		DisableColors: true,
+		DisableLevelTruncation: true,
 		FullTimestamp: true,
 	})
 
