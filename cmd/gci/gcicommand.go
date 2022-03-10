@@ -7,6 +7,7 @@ import (
 	"github.com/daixiang0/gci/pkg/constants"
 	"github.com/daixiang0/gci/pkg/gci"
 	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/spf13/cobra"
 )
@@ -27,6 +28,9 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 			gciCfg, err := gci.GciStringConfiguration{fmtCfg, *sectionStrings, *sectionSeparatorStrings}.Parse()
 			if err != nil {
 				return err
+			}
+			if *debug {
+				logConfig.Level.SetLevel(zapcore.DebugLevel)
 			}
 			return processingFunc(args, *gciCfg)
 		},
