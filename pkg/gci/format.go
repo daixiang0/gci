@@ -38,6 +38,20 @@ func formatGoFile(input []byte, cfg GciConfiguration) ([]byte, error) {
 	return output, nil
 }
 
+// pprintImports prints the imports without quotes for logging
+func pprintImports(imports []importPkg.ImportDef) string {
+	var sb strings.Builder
+	sb.WriteRune('[')
+	for i, imprt := range imports {
+		if i != 0 {
+			sb.WriteRune(' ')
+		}
+		sb.WriteString(imprt.UnquotedString())
+	}
+	sb.WriteRune(']')
+	return sb.String()
+}
+
 // Takes unsorted imports as byte array and formats them according to the specified sections
 func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 	//strings.ReplaceAll(input, "\r\n", linebreak)
@@ -46,7 +60,7 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("an error occured while trying to parse imports: %w", err)
 	}
-	log.WithField("imports", imports).Debug("Parsed imports in file")
+	log.WithField("imports", pprintImports(imports)).Debug("Parsed imports in file")
 
 	// create mapping between sections and imports
 	sectionMap := make(map[sectionsPkg.Section][]importPkg.ImportDef, len(cfg.Sections))
@@ -70,7 +84,7 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 		if bestSection == nil {
 			return nil, NoMatchingSectionForImportError{i}
 		}
-		log.WithFields(log.Fields{"import": i, "section": bestSection}).Debug("Matched import to section")
+		log.WithFields(log.Fields{"import": i.UnquotedString(), "section": bestSection}).Debug("Matched import to section")
 
 		sectionMap[bestSection] = append(sectionMap[bestSection], i)
 	}
@@ -80,7 +94,7 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 		sectionStr := section.Format(sectionMap[section], cfg.FormatterConfiguration)
 		// prevent adding an empty section which would cause a separator to be inserted
 		if sectionStr != "" {
-			log.WithFields(log.Fields{"imports": sectionMap[section], "section": section}).Debug("Formatting section with imports")
+			log.WithFields(log.Fields{"imports": pprintImports(sectionMap[section]), "section": section}).Debug("Formatting section with imports")
 			sectionStrings = append(sectionStrings, sectionStr)
 		}
 	}
