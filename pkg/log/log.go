@@ -33,7 +33,8 @@ func InitLogger() {
 	})
 }
 
-// SetLevel allows you to set the level
+// SetLevel allows you to set the level of the default gci logger.
+// This will not work if you replace the logger
 func SetLevel(level zapcore.Level) {
 	logConfig.Level.SetLevel(level)
 }
@@ -41,4 +42,9 @@ func SetLevel(level zapcore.Level) {
 // L returns the logger
 func L() *zap.Logger {
 	return logger
+}
+
+// SetLogger allows you to set the logger to whatever you want
+func SetLogger(l *zap.Logger) {
+	logger = l
 }
