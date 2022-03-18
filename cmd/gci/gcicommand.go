@@ -7,7 +7,6 @@ import (
 	"github.com/daixiang0/gci/pkg/constants"
 	"github.com/daixiang0/gci/pkg/gci"
 	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -28,9 +27,6 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 			gciCfg, err := gci.GciStringConfiguration{fmtCfg, *sectionStrings, *sectionSeparatorStrings}.Parse()
 			if err != nil {
 				return err
-			}
-			if *debug {
-				log.SetLevel(log.DebugLevel)
 			}
 			return processingFunc(args, *gciCfg)
 		},

@@ -3,14 +3,13 @@ package gci
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/daixiang0/gci/pkg/constants"
 	importPkg "github.com/daixiang0/gci/pkg/gci/imports"
 	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
 	"github.com/daixiang0/gci/pkg/gci/specificity"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // Formats the import section of a Go file
@@ -38,20 +37,6 @@ func formatGoFile(input []byte, cfg GciConfiguration) ([]byte, error) {
 	return output, nil
 }
 
-// pprintImports prints the imports without quotes for logging
-func pprintImports(imports []importPkg.ImportDef) string {
-	var sb strings.Builder
-	sb.WriteRune('[')
-	for i, imprt := range imports {
-		if i != 0 {
-			sb.WriteRune(' ')
-		}
-		sb.WriteString(imprt.UnquotedString())
-	}
-	sb.WriteRune(']')
-	return sb.String()
-}
-
 // Takes unsorted imports as byte array and formats them according to the specified sections
 func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 	//strings.ReplaceAll(input, "\r\n", linebreak)
@@ -60,8 +45,9 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("an error occured while trying to parse imports: %w", err)
 	}
-	log.WithField("imports", pprintImports(imports)).Debug("Parsed imports in file")
-
+	if cfg.Debug {
+		log.Println("Parsed imports in file:", imports)
+	}
 	// create mapping between sections and imports
 	sectionMap := make(map[sectionsPkg.Section][]importPkg.ImportDef, len(cfg.Sections))
 	// find matching section for every importSpec
@@ -84,8 +70,9 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 		if bestSection == nil {
 			return nil, NoMatchingSectionForImportError{i}
 		}
-		log.WithFields(log.Fields{"import": i.UnquotedString(), "section": bestSection}).Debug("Matched import to section")
-
+		if cfg.Debug {
+			log.Printf("Matched import %s to section %s", i, bestSection)
+		}
 		sectionMap[bestSection] = append(sectionMap[bestSection], i)
 	}
 	// format every section to a str
@@ -94,7 +81,9 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 		sectionStr := section.Format(sectionMap[section], cfg.FormatterConfiguration)
 		// prevent adding an empty section which would cause a separator to be inserted
 		if sectionStr != "" {
-			log.WithFields(log.Fields{"imports": pprintImports(sectionMap[section]), "section": section}).Debug("Formatting section with imports")
+			if cfg.Debug {
+				log.Printf("Formatting section %s with imports: %v", section, sectionMap[section])
+			}
 			sectionStrings = append(sectionStrings, sectionStr)
 		}
 	}
