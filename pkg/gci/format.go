@@ -9,7 +9,7 @@ import (
 	importPkg "github.com/daixiang0/gci/pkg/gci/imports"
 	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
 	"github.com/daixiang0/gci/pkg/gci/specificity"
-	"go.uber.org/zap"
+	"github.com/daixiang0/gci/pkg/log"
 )
 
 // Formats the import section of a Go file
@@ -45,7 +45,7 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("an error occured while trying to parse imports: %w", err)
 	}
-	zap.L().Debug(fmt.Sprintf("Parsed imports in file: %v", imports))
+	log.L().Debug(fmt.Sprintf("Parsed imports in file: %v", imports))
 
 	// create mapping between sections and imports
 	sectionMap := make(map[sectionsPkg.Section][]importPkg.ImportDef, len(cfg.Sections))
@@ -69,7 +69,7 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 		if bestSection == nil {
 			return nil, NoMatchingSectionForImportError{i}
 		}
-		zap.L().Debug(fmt.Sprintf("Matched import %s to section %s", i, bestSection))
+		log.L().Debug(fmt.Sprintf("Matched import %s to section %s", i, bestSection))
 
 		sectionMap[bestSection] = append(sectionMap[bestSection], i)
 	}
@@ -79,7 +79,7 @@ func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
 		sectionStr := section.Format(sectionMap[section], cfg.FormatterConfiguration)
 		// prevent adding an empty section which would cause a separator to be inserted
 		if sectionStr != "" {
-			zap.L().Debug(fmt.Sprintf("Formatting section %s with imports: %v", section, sectionMap[section]))
+			log.L().Debug(fmt.Sprintf("Formatting section %s with imports: %v", section, sectionMap[section]))
 			sectionStrings = append(sectionStrings, sectionStr)
 		}
 	}

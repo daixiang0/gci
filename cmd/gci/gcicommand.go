@@ -3,13 +3,14 @@ package gci
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+	"go.uber.org/zap/zapcore"
+
 	"github.com/daixiang0/gci/pkg/configuration"
 	"github.com/daixiang0/gci/pkg/constants"
 	"github.com/daixiang0/gci/pkg/gci"
 	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
-	"go.uber.org/zap/zapcore"
-
-	"github.com/spf13/cobra"
+	"github.com/daixiang0/gci/pkg/log"
 )
 
 type processingFunc = func(args []string, gciCfg gci.GciConfiguration) error
@@ -30,7 +31,7 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 				return err
 			}
 			if *debug {
-				logConfig.Level.SetLevel(zapcore.DebugLevel)
+				log.SetLevel(zapcore.DebugLevel)
 			}
 			return processingFunc(args, *gciCfg)
 		},

@@ -4,33 +4,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/daixiang0/gci/pkg/configuration"
 	"github.com/daixiang0/gci/pkg/gci"
-
-	"github.com/spf13/cobra"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"github.com/daixiang0/gci/pkg/log"
 )
-
-// Keep the config to reference the atomicLevel for changing levels
-var logConfig zap.Config
-
-func init() {
-	logConfig = zap.NewDevelopmentConfig()
-
-	logConfig.EncoderConfig.TimeKey = "timestamp"
-	logConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	logConfig.Level.SetLevel(zapcore.InfoLevel)
-	logConfig.OutputPaths = []string{"stderr"}
-
-	logger, err := logConfig.Build()
-	if err != nil {
-		panic(err)
-	}
-	defer logger.Sync()
-
-	zap.ReplaceGlobals(logger)
-}
 
 type Executor struct {
 	rootCmd    *cobra.Command
@@ -40,6 +19,9 @@ type Executor struct {
 }
 
 func NewExecutor(version string) *Executor {
+	log.InitLogger()
+	defer log.L().Sync()
+
 	e := Executor{}
 	rootCmd := cobra.Command{
 		Use:   "gci [-diff | -write] [-local localPackageURLs] path...",

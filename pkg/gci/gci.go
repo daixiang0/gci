@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"os"
 
-	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
-	"github.com/daixiang0/gci/pkg/io"
-	"go.uber.org/zap"
-
 	"github.com/hexops/gotextdiff"
 	"github.com/hexops/gotextdiff/myers"
 	"github.com/hexops/gotextdiff/span"
 	"golang.org/x/sync/errgroup"
+
+	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
+	"github.com/daixiang0/gci/pkg/io"
+	"github.com/daixiang0/gci/pkg/log"
 )
 
 type SectionList []sectionsPkg.Section
@@ -52,10 +52,10 @@ func PrintFormattedFiles(paths []string, cfg GciConfiguration) error {
 func WriteFormattedFiles(paths []string, cfg GciConfiguration) error {
 	return processGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
 		if bytes.Equal(unmodifiedFile, formattedFile) {
-			zap.L().Debug(fmt.Sprintf("Skipping correctly formatted File: %s", filePath))
+			log.L().Debug(fmt.Sprintf("Skipping correctly formatted File: %s", filePath))
 			return nil
 		}
-		zap.L().Info(fmt.Sprintf("Writing formatted File: %s", filePath))
+		log.L().Info(fmt.Sprintf("Writing formatted File: %s", filePath))
 		return os.WriteFile(filePath, formattedFile, 0644)
 	})
 }
@@ -109,7 +109,7 @@ func processingFunc(file io.FileObj, cfg GciConfiguration, formattingFunc fileFo
 
 func LoadFormatGoFile(file io.FileObj, cfg GciConfiguration) (unmodifiedFile, formattedFile []byte, err error) {
 	unmodifiedFile, err = file.Load()
-	zap.L().Debug(fmt.Sprintf("Loaded File: %s", file.Path()))
+	log.L().Debug(fmt.Sprintf("Loaded File: %s", file.Path()))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -120,7 +120,7 @@ func LoadFormatGoFile(file io.FileObj, cfg GciConfiguration) (unmodifiedFile, fo
 		if !errors.Is(err, MissingImportStatementError) {
 			return unmodifiedFile, nil, err
 		}
-		zap.L().Debug(fmt.Sprintf("File does not contain an import statement: %s", file.Path()))
+		log.L().Debug(fmt.Sprintf("File does not contain an import statement: %s", file.Path()))
 		formattedFile = unmodifiedFile
 	}
 	return unmodifiedFile, formattedFile, nil
