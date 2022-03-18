@@ -6,9 +6,19 @@ import (
 
 	"github.com/daixiang0/gci/pkg/configuration"
 	"github.com/daixiang0/gci/pkg/gci"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	log.SetFormatter(&log.TextFormatter{
+		DisableLevelTruncation: true,
+		FullTimestamp: true,
+	})
+
+	log.SetOutput(os.Stderr)
+}
 
 type Executor struct {
 	rootCmd    *cobra.Command
