@@ -9,9 +9,15 @@ import (
 
 	"github.com/daixiang0/gci/pkg/gci/sections"
 	"github.com/daixiang0/gci/pkg/io"
+	"github.com/daixiang0/gci/pkg/log"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	log.InitLogger()
+	defer log.L().Sync()
+}
 
 var testFilesPath = "internal/testdata"
 
@@ -73,7 +79,6 @@ func TestInitGciConfigFromYAML(t *testing.T) {
 func TestSkippingOverIncorrectlyFormattedFiles(t *testing.T) {
 	cfg, err := GciStringConfiguration{}.Parse()
 	assert.NoError(t, err)
-	validFileProcessedChan := make(chan bool, 1)
 
 	var importUnclosedCtr, noImportCtr, validCtr int
 	var files []io.FileObj
@@ -81,11 +86,12 @@ func TestSkippingOverIncorrectlyFormattedFiles(t *testing.T) {
 	files = append(files, TestFile{io.File{"internal/skipTest/no-import.testgo"}, &noImportCtr})
 	files = append(files, TestFile{io.File{"internal/skipTest/valid.testgo"}, &validCtr})
 
+	validFileProcessedChan := make(chan bool, len(files))
+
 	generatorFunc := func() ([]io.FileObj, error) {
 		return files, nil
 	}
 	fileAccessTestFunc := func(filePath string, unmodifiedFile, formattedFile []byte) error {
-		assert.Equal(t, "internal/skipTest/valid.testgo", filePath, "file should not have been processed")
 		validFileProcessedChan <- true
 		return nil
 	}
