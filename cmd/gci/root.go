@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/daixiang0/gci/pkg/configuration"
 	"github.com/daixiang0/gci/pkg/gci"
-
-	"github.com/spf13/cobra"
+	"github.com/daixiang0/gci/pkg/log"
 )
 
 type Executor struct {
@@ -18,6 +19,9 @@ type Executor struct {
 }
 
 func NewExecutor(version string) *Executor {
+	log.InitLogger()
+	defer log.L().Sync()
+
 	e := Executor{}
 	rootCmd := cobra.Command{
 		Use:   "gci [-diff | -write] [--local localPackageURLs] path...",
