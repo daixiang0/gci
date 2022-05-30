@@ -102,9 +102,13 @@ Flags:
 
 ```
 
+**Note**::
+
+The old style is only for local tests, `golangci-lint` uses new style.
+
 ## Examples
 
-Run `gci  write --Section Standard --Section Default --Section "Prefix(github.com/daixiang0/gci)" main.go` and you will handle following cases:
+Run `gci write --Section Standard --Section Default --Section "Prefix(github.com/daixiang0/gci)" main.go` and you will handle following cases:
 
 ### simple case
 

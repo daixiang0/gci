@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/hexops/gotextdiff"
 	"github.com/hexops/gotextdiff/myers"
@@ -67,6 +68,20 @@ func DiffFormattedFiles(paths []string, cfg GciConfiguration) error {
 		edits := myers.ComputeEdits(fileURI, string(unmodifiedFile), string(formattedFile))
 		unifiedEdits := gotextdiff.ToUnified(filePath, filePath, string(unmodifiedFile), edits)
 		fmt.Printf("%v", unifiedEdits)
+		return nil
+	})
+}
+
+func DiffFormattedFilesToArray(paths []string, cfg GciConfiguration, diffs *[]string, lock *sync.Mutex) error {
+	log.InitLogger()
+	defer log.L().Sync()
+	return processStdInAndGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
+		fileURI := span.URIFromPath(filePath)
+		edits := myers.ComputeEdits(fileURI, string(unmodifiedFile), string(formattedFile))
+		unifiedEdits := gotextdiff.ToUnified(filePath, filePath, string(unmodifiedFile), edits)
+		lock.Lock()
+		*diffs = append(*diffs, fmt.Sprint(unifiedEdits))
+		lock.Unlock()
 		return nil
 	})
 }

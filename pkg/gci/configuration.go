@@ -3,10 +3,10 @@ package gci
 import (
 	"io/ioutil"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/daixiang0/gci/pkg/configuration"
 	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
-
-	"gopkg.in/yaml.v3"
 )
 
 type GciConfiguration struct {

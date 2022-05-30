@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/daixiang0/gci/pkg/gci/sections"
 	"github.com/daixiang0/gci/pkg/io"
 	"github.com/daixiang0/gci/pkg/log"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func init() {
