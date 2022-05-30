@@ -20,7 +20,7 @@ type Executor struct {
 func NewExecutor(version string) *Executor {
 	e := Executor{}
 	rootCmd := cobra.Command{
-		Use:   "gci [-diff | -write] [-local localPackageURLs] path...",
+		Use:   "gci [-diff | -write] [--local localPackageURLs] path...",
 		Short: "Gci controls golang package import order and makes it always deterministic",
 		Long: "Gci enables automatic formatting of imports in a deterministic manner" +
 			"\n" +

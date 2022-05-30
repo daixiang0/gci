@@ -11,7 +11,12 @@ $ go get github.com/daixiang0/gci
 ```
 
 ## Usage
+
+Now GCI provides two command line methods, mainly for backward compatibility.
+
+### New style
 GCI supports three modes of operation
+
 ```shell
 $ gci print -h
 Print outputs the formatted file. If you want to apply the changes to a file use write instead!
@@ -81,7 +86,21 @@ Flags:
   -d, --debug                      Enables debug output from the formatter
   -h, --help                       help for diff
 ```
-Support for the old CLI style is still present if you do not specify the subcommands. The only difference is that `--local` requires two dashes now.
+
+### Old style
+
+```shell
+Usage:
+  gci [-diff | -write] [--local localPackageURLs] path... [flags]
+
+Flags:
+  -d, --diff            display diffs instead of rewriting files
+  -h, --help            help for gci
+  -l, --local strings   put imports beginning with this string after 3rd-party packages, separate imports by comma
+  -v, --version         version for gci
+  -w, --write           write result to (source) file instead of stdout
+
+```
 
 ## Examples
 
