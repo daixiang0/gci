@@ -28,7 +28,11 @@ func (list SectionList) String() []string {
 }
 
 func DefaultSections() SectionList {
-	return SectionList{sectionsPkg.StandardPackage{}, sectionsPkg.DefaultSection{nil, nil}}
+	return SectionList{
+		sectionsPkg.StandardPackage{},
+		sectionsPkg.DefaultSection{nil, nil},
+		sectionsPkg.Module{},
+	}
 }
 
 func DefaultSectionSeparators() SectionList {

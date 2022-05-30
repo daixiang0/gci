@@ -30,6 +30,9 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 			if err != nil {
 				return err
 			}
+			if err = gciCfg.InitializeModules(args); err != nil {
+				return err
+			}
 			if *debug {
 				log.SetLevel(zapcore.DebugLevel)
 			}

@@ -25,5 +25,5 @@ func TestSpecificityEquality(t *testing.T) {
 }
 
 func testCasesInSpecificityOrder() []MatchSpecificity {
-	return []MatchSpecificity{MisMatch{}, Default{}, StandardPackageMatch{}, Match{0}, Match{1}}
+	return []MatchSpecificity{MisMatch{}, Default{}, StandardPackageMatch{}, Match{0}, Match{1}, Module{}}
 }
