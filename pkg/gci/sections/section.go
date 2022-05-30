@@ -22,8 +22,6 @@ type Section interface {
 	String() string
 }
 
-//Unbound methods that are required until interface methods are supported
-
 // Default method for formatting a section
 func inorderSectionFormat(section Section, imports []importPkg.ImportDef, cfg configuration.FormatterConfiguration) string {
 	imports = importPkg.SortImportsByPath(imports)

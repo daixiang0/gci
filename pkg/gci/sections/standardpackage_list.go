@@ -1,6 +1,6 @@
 package sections
 
-// Code generated based on go1.18. DO NOT EDIT.
+// Code generated based on go1.18.2. DO NOT EDIT.
 
 var standardPackages = map[string]struct{}{
 	"archive/tar":          {},

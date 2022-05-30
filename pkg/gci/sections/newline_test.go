@@ -14,6 +14,7 @@ func TestNewLineSpecificity(t *testing.T) {
 	}
 	testSpecificity(t, testCases)
 }
+
 func TestNewLineParsing(t *testing.T) {
 	testCases := []sectionTestData{
 		{"nl", NewLine{}, nil},

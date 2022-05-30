@@ -21,6 +21,7 @@ func subCommandOrGoFileCompletion(cmd *cobra.Command, args []string, toComplete 
 	}
 	return goFileCompletion(cmd, args, toComplete)
 }
+
 func goFileCompletion(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 	return []string{"go"}, cobra.ShellCompDirectiveFilterFileExt
 }

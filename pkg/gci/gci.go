@@ -33,6 +33,7 @@ func DefaultSections() SectionList {
 func DefaultSectionSeparators() SectionList {
 	return SectionList{sectionsPkg.NewLine{}}
 }
+
 func LocalFlagsToSections(localFlags []string) SectionList {
 	sections := DefaultSections()
 	// Add all local arguments as ImportPrefix sections
@@ -56,7 +57,7 @@ func WriteFormattedFiles(paths []string, cfg GciConfiguration) error {
 			return nil
 		}
 		log.L().Info(fmt.Sprintf("Writing formatted File: %s", filePath))
-		return os.WriteFile(filePath, formattedFile, 0644)
+		return os.WriteFile(filePath, formattedFile, 0o644)
 	})
 }
 

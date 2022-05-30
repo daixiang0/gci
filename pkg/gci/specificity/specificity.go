@@ -16,8 +16,6 @@ type MatchSpecificity interface {
 	class() specificityClass
 }
 
-//Unbound methods that are required until interface methods are supported
-
 func isMoreSpecific(this, than MatchSpecificity) bool {
 	return this.class() > than.class()
 }

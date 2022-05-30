@@ -39,11 +39,10 @@ func formatGoFile(input []byte, cfg GciConfiguration) ([]byte, error) {
 
 // Takes unsorted imports as byte array and formats them according to the specified sections
 func formatImportBlock(input []byte, cfg GciConfiguration) ([]byte, error) {
-	//strings.ReplaceAll(input, "\r\n", linebreak)
 	lines := strings.Split(string(input), constants.Linebreak)
 	imports, err := parseToImportDefinitions(lines)
 	if err != nil {
-		return nil, fmt.Errorf("an error occured while trying to parse imports: %w", err)
+		return nil, fmt.Errorf("an error occurred while trying to parse imports: %w", err)
 	}
 	log.L().Debug(fmt.Sprintf("Parsed imports in file: %v", imports))
 
