@@ -1,7 +1,6 @@
 package specificity
 
-type StandardPackageMatch struct {
-}
+type StandardPackageMatch struct{}
 
 func (s StandardPackageMatch) IsMoreSpecific(than MatchSpecificity) bool {
 	return isMoreSpecific(s, than)

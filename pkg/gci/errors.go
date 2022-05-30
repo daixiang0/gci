@@ -40,7 +40,7 @@ type InvalidImportSplitError struct {
 }
 
 func (i InvalidImportSplitError) Error() string {
-	return fmt.Sprintf("seperating the inline comment from the import yielded an invalid number of segments: %v", i.segments)
+	return fmt.Sprintf("separating the inline comment from the import yielded an invalid number of segments: %v", i.segments)
 }
 
 func (i InvalidImportSplitError) Is(err error) bool {
@@ -53,7 +53,7 @@ type InvalidAliasSplitError struct {
 }
 
 func (i InvalidAliasSplitError) Error() string {
-	return fmt.Sprintf("seperating the alias from the path yielded an invalid number of segments: %v", i.segments)
+	return fmt.Sprintf("separating the alias from the path yielded an invalid number of segments: %v", i.segments)
 }
 
 func (i InvalidAliasSplitError) Is(err error) bool {
@@ -61,8 +61,10 @@ func (i InvalidAliasSplitError) Is(err error) bool {
 	return ok
 }
 
-var MissingImportStatementError = FileParsingError{errors.New("no import statement present in File")}
-var ImportStatementNotClosedError = FileParsingError{errors.New("import statement not closed")}
+var (
+	MissingImportStatementError   = FileParsingError{errors.New("no import statement present in File")}
+	ImportStatementNotClosedError = FileParsingError{errors.New("import statement not closed")}
+)
 
 type FileParsingError struct {
 	error

@@ -14,7 +14,7 @@ func parseToImportDefinitions(unformattedLines []string) ([]importPkg.ImportDef,
 	for index, unformattedLine := range unformattedLines {
 		line := strings.TrimSpace(unformattedLine)
 		if line == "" {
-			//empty line --> starts a new import
+			// empty line --> starts a new import
 			return parseToImportDefinitions(unformattedLines[index+1:])
 		}
 		if strings.HasPrefix(line, constants.LineCommentFlag) {

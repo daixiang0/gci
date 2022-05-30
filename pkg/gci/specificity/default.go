@@ -1,11 +1,11 @@
 package specificity
 
-type Default struct {
-}
+type Default struct{}
 
 func (d Default) IsMoreSpecific(than MatchSpecificity) bool {
 	return isMoreSpecific(d, than)
 }
+
 func (d Default) Equal(to MatchSpecificity) bool {
 	return equalSpecificity(d, to)
 }

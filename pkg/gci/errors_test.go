@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	importPkg "github.com/daixiang0/gci/pkg/gci/imports"
 	sectionsPkg "github.com/daixiang0/gci/pkg/gci/sections"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestErrorMatching(t *testing.T) {

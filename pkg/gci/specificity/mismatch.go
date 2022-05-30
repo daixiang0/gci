@@ -1,7 +1,6 @@
 package specificity
 
-type MisMatch struct {
-}
+type MisMatch struct{}
 
 func (m MisMatch) IsMoreSpecific(than MatchSpecificity) bool {
 	return isMoreSpecific(m, than)
@@ -17,5 +16,4 @@ func (m MisMatch) class() specificityClass {
 
 func (m MisMatch) String() string {
 	return "Mismatch"
-
 }

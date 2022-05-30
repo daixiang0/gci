@@ -6,12 +6,13 @@ import (
 	"go/token"
 	"strings"
 
+	"golang.org/x/tools/go/analysis"
+	"golang.org/x/tools/go/analysis/passes/inspect"
+
 	"github.com/daixiang0/gci/pkg/configuration"
 	"github.com/daixiang0/gci/pkg/gci"
 	"github.com/daixiang0/gci/pkg/io"
-
-	"golang.org/x/tools/go/analysis"
-	"golang.org/x/tools/go/analysis/passes/inspect"
+	"github.com/daixiang0/gci/pkg/log"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 	NoPrefixCommentsFlag  = "noPrefixComments"
 	SectionsFlag          = "Sections"
 	SectionSeparatorsFlag = "SectionSeparators"
-	SectionDelimiter      = ";"
+	SectionDelimiter      = ","
 )
 
 var (
@@ -34,6 +35,9 @@ func init() {
 	Analyzer.Flags.BoolVar(&noPrefixComments, NoPrefixCommentsFlag, false, "If comments above an input should be present")
 	Analyzer.Flags.StringVar(&sectionsStr, SectionsFlag, "", "Specify the Sections format that should be used to check the file formatting")
 	Analyzer.Flags.StringVar(&sectionSeparatorsStr, SectionSeparatorsFlag, "", "Specify the Sections that are inserted as Separators between Sections")
+
+	log.InitLogger()
+	defer log.L().Sync()
 }
 
 var Analyzer = &analysis.Analyzer{
@@ -44,8 +48,6 @@ var Analyzer = &analysis.Analyzer{
 }
 
 func runAnalysis(pass *analysis.Pass) (interface{}, error) {
-	// TODO input validation
-
 	var fileReferences []*token.File
 	// extract file references for all files in the analyzer pass
 	for _, pkgFile := range pass.Files {
@@ -80,17 +82,7 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 		case -1:
 			// no difference
 		default:
-			diffPos := file.Position(file.Pos(diffIdx))
-			// prevent invalid access to array
-			fileRune := "nil"
-			formattedRune := "nil"
-			if len(fileRunes)-1 >= diffIdx {
-				fileRune = fmt.Sprintf("%q", fileRunes[diffIdx])
-			}
-			if len(formattedRunes)-1 >= diffIdx {
-				formattedRune = fmt.Sprintf("%q", formattedRunes[diffIdx])
-			}
-			pass.Reportf(file.Pos(diffIdx), "Expected %s, Found %s at %s[line %d,col %d]", formattedRune, fileRune, filePath, diffPos.Line, diffPos.Column)
+			pass.Reportf(file.Pos(diffIdx), "fix by `%s %s`", generateCmdLine(*gciCfg), filePath)
 		}
 	}
 	return nil, nil
@@ -126,6 +118,27 @@ func parseGciConfiguration() (*gci.GciConfiguration, error) {
 	var sectionSeparatorStrings []string
 	if sectionSeparatorsStr != "" {
 		sectionSeparatorStrings = strings.Split(sectionSeparatorsStr, SectionDelimiter)
+		fmt.Println(sectionSeparatorsStr)
 	}
 	return gci.GciStringConfiguration{fmtCfg, sectionStrings, sectionSeparatorStrings}.Parse()
+}
+
+func generateCmdLine(cfg gci.GciConfiguration) string {
+	result := "gci write"
+
+	if cfg.FormatterConfiguration.NoInlineComments {
+		result += " --NoInlineComments "
+	}
+
+	if cfg.FormatterConfiguration.NoPrefixComments {
+		result += " --NoPrefixComments "
+	}
+
+	for _, s := range cfg.Sections.String() {
+		result += fmt.Sprintf(" --Section \"%s\" ", s)
+	}
+	for _, s := range cfg.SectionSeparators.String() {
+		result += fmt.Sprintf(" --SectionSeparator %s ", s)
+	}
+	return result
 }

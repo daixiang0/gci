@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/hexops/gotextdiff"
 	"github.com/hexops/gotextdiff/myers"
@@ -33,6 +34,7 @@ func DefaultSections() SectionList {
 func DefaultSectionSeparators() SectionList {
 	return SectionList{sectionsPkg.NewLine{}}
 }
+
 func LocalFlagsToSections(localFlags []string) SectionList {
 	sections := DefaultSections()
 	// Add all local arguments as ImportPrefix sections
@@ -56,7 +58,7 @@ func WriteFormattedFiles(paths []string, cfg GciConfiguration) error {
 			return nil
 		}
 		log.L().Info(fmt.Sprintf("Writing formatted File: %s", filePath))
-		return os.WriteFile(filePath, formattedFile, 0644)
+		return os.WriteFile(filePath, formattedFile, 0o644)
 	})
 }
 
@@ -66,6 +68,20 @@ func DiffFormattedFiles(paths []string, cfg GciConfiguration) error {
 		edits := myers.ComputeEdits(fileURI, string(unmodifiedFile), string(formattedFile))
 		unifiedEdits := gotextdiff.ToUnified(filePath, filePath, string(unmodifiedFile), edits)
 		fmt.Printf("%v", unifiedEdits)
+		return nil
+	})
+}
+
+func DiffFormattedFilesToArray(paths []string, cfg GciConfiguration, diffs *[]string, lock *sync.Mutex) error {
+	log.InitLogger()
+	defer log.L().Sync()
+	return processStdInAndGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
+		fileURI := span.URIFromPath(filePath)
+		edits := myers.ComputeEdits(fileURI, string(unmodifiedFile), string(formattedFile))
+		unifiedEdits := gotextdiff.ToUnified(filePath, filePath, string(unmodifiedFile), edits)
+		lock.Lock()
+		*diffs = append(*diffs, fmt.Sprint(unifiedEdits))
+		lock.Unlock()
 		return nil
 	})
 }
