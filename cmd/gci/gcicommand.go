@@ -16,7 +16,7 @@ import (
 type processingFunc = func(args []string, gciCfg gci.GciConfiguration) error
 
 func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdInSupport bool, processingFunc processingFunc) *cobra.Command {
-	var noInlineComments, noPrefixComments, debug *bool
+	var noInlineComments, noPrefixComments, debug, skipGeneratedFiles *bool
 	var sectionStrings, sectionSeparatorStrings *[]string
 	cmd := cobra.Command{
 		Use:               use,
@@ -26,7 +26,8 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 		ValidArgsFunction: goFileCompletion,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmtCfg := configuration.FormatterConfiguration{*noInlineComments, *noPrefixComments, *debug}
-			gciCfg, err := gci.GciStringConfiguration{fmtCfg, *sectionStrings, *sectionSeparatorStrings}.Parse()
+			gciCfg, err := gci.GciStringConfiguration{
+				fmtCfg, *sectionStrings, *sectionSeparatorStrings, *skipGeneratedFiles}.Parse()
 			if err != nil {
 				return err
 			}
@@ -55,5 +56,6 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 	noPrefixComments = cmd.Flags().Bool("NoPrefixComments", false, "Drops comment lines above an import statement while formatting")
 	sectionStrings = cmd.Flags().StringSliceP("Section", "s", gci.DefaultSections().String(), sectionHelp)
 	sectionSeparatorStrings = cmd.Flags().StringSliceP("SectionSeparator", "x", gci.DefaultSectionSeparators().String(), "SectionSeparators are inserted between Sections")
+	skipGeneratedFiles = cmd.Flags().Bool("SkipGeneratedFiles", false, "Don't process generated files")
 	return &cmd
 }

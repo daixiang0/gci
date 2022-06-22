@@ -60,7 +60,8 @@ func (e *Executor) runInCompatibilityMode(cmd *cobra.Command, args []string) err
 	// generate section specification from old localFlags format
 	sections := gci.LocalFlagsToSections(*e.localFlags)
 	sectionSeparators := gci.DefaultSectionSeparators()
-	cfg := gci.GciConfiguration{configuration.FormatterConfiguration{false, false, false}, sections, sectionSeparators}
+	cfg := gci.GciConfiguration{
+		configuration.FormatterConfiguration{false, false, false}, sections, sectionSeparators, false}
 	if *e.writeMode {
 		return gci.WriteFormattedFiles(args, cfg)
 	}
