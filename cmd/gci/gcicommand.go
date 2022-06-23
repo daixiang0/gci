@@ -27,7 +27,8 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmtCfg := configuration.FormatterConfiguration{*noInlineComments, *noPrefixComments, *debug}
 			gciCfg, err := gci.GciStringConfiguration{
-				fmtCfg, *sectionStrings, *sectionSeparatorStrings, *skipGeneratedFiles}.Parse()
+				fmtCfg, *sectionStrings, *sectionSeparatorStrings, *skipGeneratedFiles,
+			}.Parse()
 			if err != nil {
 				return err
 			}
