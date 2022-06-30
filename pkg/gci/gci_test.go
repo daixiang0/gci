@@ -110,6 +110,34 @@ func TestSkippingOverIncorrectlyFormattedFiles(t *testing.T) {
 	assert.True(t, <-validFileProcessedChan)
 }
 
+func TestSkippingGeneratedFiles(t *testing.T) {
+	cfg, err := GciStringConfiguration{SkipGeneratedFiles: true}.Parse()
+	assert.NoError(t, err)
+
+	var generatedCodeCtr int
+	var files []io.FileObj
+	files = append(files, TestFile{io.File{"internal/skipTest/generated_code.go"}, &generatedCodeCtr})
+
+	validFileProcessedChan := make(chan bool, len(files))
+
+	generatorFunc := func() ([]io.FileObj, error) {
+		return files, nil
+	}
+	fileAccessTestFunc := func(_ string, unmodifiedFile, formattedFile []byte) error {
+		validFileProcessedChan <- true
+		assert.NotEmpty(t, unmodifiedFile)
+		assert.Equal(t, string(unmodifiedFile), string(formattedFile))
+		return nil
+	}
+	err = processFiles(generatorFunc, *cfg, fileAccessTestFunc)
+
+	assert.NoError(t, err)
+	// check all files have been accessed
+	assert.Equal(t, generatedCodeCtr, 1)
+	// check that processing for the valid file was called
+	assert.True(t, <-validFileProcessedChan)
+}
+
 type TestFile struct {
 	wrappedFile   io.File
 	accessCounter *int

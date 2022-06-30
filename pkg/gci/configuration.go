@@ -11,14 +11,16 @@ import (
 
 type GciConfiguration struct {
 	configuration.FormatterConfiguration
-	Sections          SectionList
-	SectionSeparators SectionList
+	Sections           SectionList
+	SectionSeparators  SectionList
+	SkipGeneratedFiles bool
 }
 
 type GciStringConfiguration struct {
 	Cfg                     configuration.FormatterConfiguration `yaml:",inline"`
 	SectionStrings          []string                             `yaml:"sections"`
 	SectionSeparatorStrings []string                             `yaml:"sectionseparators"`
+	SkipGeneratedFiles      bool                                 `yaml:"skipGeneratedFiles"`
 }
 
 func (g GciStringConfiguration) Parse() (*GciConfiguration, error) {
@@ -37,7 +39,7 @@ func (g GciStringConfiguration) Parse() (*GciConfiguration, error) {
 			return nil, err
 		}
 	}
-	return &GciConfiguration{g.Cfg, sections, sectionSeparators}, nil
+	return &GciConfiguration{g.Cfg, sections, sectionSeparators, g.SkipGeneratedFiles}, nil
 }
 
 func initializeGciConfigFromYAML(filePath string) (*GciConfiguration, error) {

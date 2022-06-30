@@ -120,7 +120,7 @@ func parseGciConfiguration() (*gci.GciConfiguration, error) {
 		sectionSeparatorStrings = strings.Split(sectionSeparatorsStr, SectionDelimiter)
 		fmt.Println(sectionSeparatorsStr)
 	}
-	return gci.GciStringConfiguration{fmtCfg, sectionStrings, sectionSeparatorStrings}.Parse()
+	return gci.GciStringConfiguration{fmtCfg, sectionStrings, sectionSeparatorStrings, false}.Parse()
 }
 
 func generateCmdLine(cfg gci.GciConfiguration) string {

@@ -38,6 +38,7 @@ Flags:
                                    Std | Standard - Captures all standard packages if they do not match another section
                                     (default [Standard,Default])
   -x, --SectionSeparator strings   SectionSeparators are inserted between Sections (default [NewLine])
+      --SkipGeneratedFiles         Don't process generated files
   -h, --help                       help for print
 ```
 
@@ -62,6 +63,7 @@ Flags:
                                    Std | Standard - Captures all standard packages if they do not match another section
                                     (default [Standard,Default])
   -x, --SectionSeparator strings   SectionSeparators are inserted between Sections (default [NewLine])
+      --SkipGeneratedFiles         Don't process generated files
   -h, --help                       help for write
 ```
 
@@ -83,6 +85,7 @@ Flags:
                                    Std | Standard - Captures all standard packages if they do not match another section
                                     (default [Standard,Default])
   -x, --SectionSeparator strings   SectionSeparators are inserted between Sections (default [NewLine])
+      --SkipGeneratedFiles         Don't process generated files
   -d, --debug                      Enables debug output from the formatter
   -h, --help                       help for diff
 ```
