@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -26,6 +27,9 @@ func isTestInputFile(file os.FileInfo) bool {
 }
 
 func TestRun(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping multi-line-comment test on Windows")
+	}
 	testFiles, err := io.FindFilesForPath(testFilesPath, isTestInputFile)
 	if err != nil {
 		t.Fatal(err)
