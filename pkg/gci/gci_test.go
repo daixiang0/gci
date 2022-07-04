@@ -43,6 +43,9 @@ func TestRun(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			if err = gciCfg.InitializeModules([]string{testFile}); err != nil {
+				t.Fatal(err)
+			}
 
 			_, formattedFile, err := LoadFormatGoFile(io.File{fileBaseName + ".in.go"}, *gciCfg)
 			if err != nil {

@@ -7,6 +7,7 @@ const (
 	DefaultClass         = 10
 	StandardPackageClass = 20
 	MatchClass           = 30
+	ModuleClass          = 40
 )
 
 // MatchSpecificity is used to determine which section matches an import best
