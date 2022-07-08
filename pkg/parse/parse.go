@@ -73,6 +73,10 @@ func ParseFile(src []byte) (ImportList, int, int, int, error) {
 		return nil, 0, 0, 0, err
 	}
 
+	if len(f.Imports) == 0 {
+		return nil, 0, 0, 0, NoImportError{}
+	}
+
 	var data ImportList
 	for _, imp := range f.Imports {
 		start, end, name := getImports(imp)
@@ -112,4 +116,15 @@ func IsGeneratedFileByComment(in string) bool {
 	}
 
 	return false
+}
+
+type NoImportError struct{}
+
+func (n NoImportError) Error() string {
+	return "No imports"
+}
+
+func (i NoImportError) Is(err error) bool {
+	_, ok := err.(NoImportError)
+	return ok
 }

@@ -2,6 +2,7 @@ package gci
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -123,6 +124,9 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 
 	imports, headEnd, tailStart, tailEnd, err := parse.ParseFile(src)
 	if err != nil {
+		if errors.Is(err, parse.NoImportError{}) {
+			return src, src, nil
+		}
 		return nil, nil, err
 	}
 
