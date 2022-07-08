@@ -3,9 +3,9 @@ package config
 import (
 	"io/ioutil"
 
-	"github.com/daixiang0/gci/pkg/section"
-
 	"gopkg.in/yaml.v2"
+
+	"github.com/daixiang0/gci/pkg/section"
 )
 
 type BoolConfig struct {

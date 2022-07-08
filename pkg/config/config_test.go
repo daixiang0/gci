@@ -4,9 +4,9 @@ import (
 	"path"
 	"testing"
 
-	"github.com/daixiang0/gci/pkg/section"
-
 	"github.com/tj/assert"
+
+	"github.com/daixiang0/gci/pkg/section"
 )
 
 var testFilesPath = "../gci/internal/testdata"
