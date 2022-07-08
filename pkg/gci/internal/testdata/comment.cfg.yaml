@@ -1,5 +1,1 @@
-sections:
-  - comment( Do not forget to run Gci)
-  - default
-sectionseparators: []
-no-prefixComments: true
+common.cfg.yaml

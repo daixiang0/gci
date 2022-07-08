@@ -13,10 +13,10 @@ import (
 
 //go:generate go run .
 
-const outputFile = "../pkg/gci/sections/standardpackage_list.go"
+const outputFile = "../pkg/section/standard_list.go"
 
 const stdTemplate = `
-package sections
+package section
 
 // Code generated based on {{ .Version }}. DO NOT EDIT.
 

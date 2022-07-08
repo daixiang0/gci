@@ -1,8 +1,8 @@
 package main
 import (
-  "golang.org/x/tools"
+	"golang.org/x/tools"
 
-  "fmt"
+	"fmt"
 
-  "github.com/daixiang0/gci"
+	"github.com/daixiang0/gci"
 )

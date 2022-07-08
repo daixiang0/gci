@@ -1,9 +1,6 @@
 package main
 
 import (
-	/*
-		#include "types.h"
-		#include "other.h"
-	*/
-	"C"
+	/* #include "types.h"
+	#include "other.h" */"C"
 )

@@ -6,9 +6,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/daixiang0/gci/pkg/configuration"
+	"github.com/daixiang0/gci/pkg/config"
 	"github.com/daixiang0/gci/pkg/gci"
 	"github.com/daixiang0/gci/pkg/log"
+	"github.com/daixiang0/gci/pkg/section"
 )
 
 type Executor struct {
@@ -59,9 +60,16 @@ func (e *Executor) runInCompatibilityMode(cmd *cobra.Command, args []string) err
 	}
 	// generate section specification from old localFlags format
 	sections := gci.LocalFlagsToSections(*e.localFlags)
-	sectionSeparators := gci.DefaultSectionSeparators()
-	cfg := gci.GciConfiguration{
-		configuration.FormatterConfiguration{false, false, false}, sections, sectionSeparators, false,
+	sectionSeparators := section.DefaultSectionSeparators()
+	cfg := config.Config{
+		BoolConfig: config.BoolConfig{
+			NoInlineComments: false,
+			NoPrefixComments: false,
+			Debug:            false,
+			SkipGenerated:    false,
+		},
+		Sections:          sections,
+		SectionSeparators: sectionSeparators,
 	}
 	if *e.writeMode {
 		return gci.WriteFormattedFiles(args, cfg)
