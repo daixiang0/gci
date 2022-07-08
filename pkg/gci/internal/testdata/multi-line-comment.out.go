@@ -9,7 +9,6 @@ import (
 	// is configured to force us to use dlib/exec instead.
 	"os/exec"
 
-	"golang.org/x/sys/unix"
-
 	"github.com/local/dlib/dexec"
+	"golang.org/x/sys/unix"
 )

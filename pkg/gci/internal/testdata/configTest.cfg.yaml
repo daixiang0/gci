@@ -1,7 +1,3 @@
 sections:
-  - default
-sectionseparators:
-  - comment(---)
-no-inlineComments: true
-no-prefixComments: true
-Debug: true
+  - Default
+skipGenerated: true

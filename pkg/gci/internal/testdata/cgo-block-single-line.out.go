@@ -1,8 +1,6 @@
 package main
 
 import (
-	/*
-		#include "types.h"
-	*/
+	/* #include "types.h" */
 	"C"
 )

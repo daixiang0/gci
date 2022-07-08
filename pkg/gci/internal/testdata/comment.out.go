@@ -1,6 +1,5 @@
 package main
 import (
-	// Do not forget to run Gci
-
+	//Do not forget to run Gci
 	"fmt"
 )

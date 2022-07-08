@@ -6,13 +6,13 @@ default: clean generate test build
 
 clean:
 	@echo BIN_OUTPUT: ${BIN_OUTPUT}
-	rm -rf dist/ cover.out
+	@rm -rf dist cover.out
 
 build: clean
-	go build -v -trimpath -o ${BIN_OUTPUT} .
+	@go build -v -trimpath -o ${BIN_OUTPUT} .
 
 test: clean
-	go test -v -cover ./...
+	@go test -v -cover ./...
 
 generate:
-	go generate ./...
+	@go generate ./...
