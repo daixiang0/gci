@@ -3,6 +3,7 @@ package gci
 import (
 	"io/ioutil"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -25,6 +26,10 @@ func isTestInputFile(file os.FileInfo) bool {
 }
 
 func TestRun(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping test on Windows")
+	}
+
 	testFiles, err := io.FindFilesForPath(testFilesPath, isTestInputFile)
 	if err != nil {
 		t.Fatal(err)
