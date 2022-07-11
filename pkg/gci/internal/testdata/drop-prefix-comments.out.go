@@ -6,9 +6,9 @@ import (
 	// Std imports
 	"os"
 
-	"github.com/daixiang0/gci"
-
 	// Github
 	"github.com/local/dlib/dexec"
+
+	"github.com/daixiang0/gci"
 	// Github
 )

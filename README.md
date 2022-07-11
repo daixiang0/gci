@@ -16,7 +16,7 @@ GCI splits all import blocks into different sections, now support three section 
 - custom: Custom section, use full and the longest match(match full string first, if multiple matches, use the longest one)
 - default: All rest import blocks
 
-The priority is standard>custom>default, all sections sort alphabetically inside.
+The priority is standard > default > custom, all sections sort alphabetically inside.
 
 All import blocks use one TAB(`\t`) as Indent.
 
@@ -49,13 +49,12 @@ Aliases:
 
 Flags:
   -d, --debug             Enables debug output from the formatter
-  -h, --help              help for print
-  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). A section can contain a Prefix and a Suffix section which is delimited by ":". These sections can be used for formatting and will only be rendered if the main section contains an entry. The Section order is the same as below, default value is [Standard,Default].
-                          Std | Standard - Captures all standard packages if they do not match another section
-                          Prefix(github.com/daixiang0) | pkgPrefix(github.com/daixiang0) - Groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
-                          Def | Default - Contains all imports that could not be matched to another section type
-                          [DEPRECATED] Comment(your text here) | CommentLine(your text here) - Prints the specified indented comment
-                          [DEPRECATED] NL | NewLine - Prints an empty line
+  -h, --help              help for write
+  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom. The default value is [standard,default].
+                          standard - standard section that Golang provides officially, like "fmt"
+                          Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
+                          default - default section, contains all rest imports (default [standard,default])
+      --skip-generated    Skip generated files
 ```
 
 ```shell
@@ -71,12 +70,11 @@ Aliases:
 Flags:
   -d, --debug             Enables debug output from the formatter
   -h, --help              help for write
-  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). A section can contain a Prefix and a Suffix section which is delimited by ":". These sections can be used for formatting and will only be rendered if the main section contains an entry. The Section order is the same as below, default value is [Standard,Default].
-                          Std | Standard - Captures all standard packages if they do not match another section
-                          Prefix(github.com/daixiang0) | pkgPrefix(github.com/daixiang0) - Groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
-                          Def | Default - Contains all imports that could not be matched to another section type
-                          [DEPRECATED] Comment(your text here) | CommentLine(your text here) - Prints the specified indented comment
-                          [DEPRECATED] NL | NewLine - Prints an empty line
+  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom. The default value is [standard,default].
+                          standard - standard section thatolang provides officially, like "fmt"
+                          Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
+                          default - default section, contains all rest imports (default [standard,default])
+      --skip-generated    Skip generated files
 ```
 
 ```shell
@@ -88,13 +86,13 @@ Usage:
 
 Flags:
   -d, --debug             Enables debug output from the formatter
-  -h, --help              help for diff
-  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). A section can contain a Prefix and a Suffix section which is delimited by ":". These sections can be used for formatting and will only be rendered if the main section contains an entry. The Section order is the same as below, default value is [Standard,Default].
-                          Std | Standard - Captures all standard packages if they do not match another section
-                          Prefix(github.com/daixiang0) | pkgPrefix(github.com/daixiang0) - Groups all imports with the specified Prefix. Imports will be matched to the full and longest Prefix. All groups are in alphabetical order.
-                          Def | Default - Contains all imports that could not be matched to another section type
-                          [DEPRECATED] Comment(your text here) | CommentLine(your text here) - Prints the specified indented comment
-                          [DEPRECATED] NL | NewLine - Prints an empty line
+  -h, --help              help for write
+  -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom. The default value is [standard,default].
+                          standard - standard section thatolang provides officially, like "fmt"
+                          Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
+                          default - default section, contains all rest imports (default [standard,default])
+      --skip-generated    Skip generated files
+
 ```
 
 ### Old style
@@ -140,9 +138,9 @@ package main
 import (
     "fmt"
 
-    "github.com/daixiang0/gci"
-
     "golang.org/x/tools"
+
+    "github.com/daixiang0/gci"
 )
 ```
 
@@ -164,9 +162,9 @@ package main
 import (
   "fmt"
 
-  "github.com/daixiang0/gci"
-
   go "github.com/golang"
+
+  "github.com/daixiang0/gci"
 )
 ```
 

@@ -151,13 +151,24 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	firstWithIndex := true
 
 	var body []byte
-	// order: standard > custom > rest
+	// order: standard > default > custom
 	if len(result["standard"]) > 0 {
 		for _, d := range result["standard"] {
 			AddIndent(&body, &firstWithIndex)
 			body = append(body, src[d.Start:d.End]...)
 		}
 		if len(allKeys) > 1 {
+			body = append(body, utils.Linebreak)
+		}
+	}
+
+	if len(result["default"]) > 0 {
+		for _, d := range result["default"] {
+			AddIndent(&body, &firstWithIndex)
+			body = append(body, src[d.Start:d.End]...)
+		}
+
+		if len(customKeys) > 0 {
 			body = append(body, utils.Linebreak)
 		}
 	}
@@ -172,17 +183,8 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 			body = append(body, utils.Linebreak)
 		}
 
-		// no default section, remove breakline in the end
-		if len(result["default"]) == 0 {
-			body = body[:len(body)-1]
-		}
-	}
-
-	if len(result["default"]) > 0 {
-		for _, d := range result["default"] {
-			AddIndent(&body, &firstWithIndex)
-			body = append(body, src[d.Start:d.End]...)
-		}
+		// remove breakline in the end
+		body = body[:len(body)-1]
 	}
 
 	var totalLen int
