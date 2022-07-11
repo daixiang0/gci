@@ -46,16 +46,14 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 
 	debug = cmd.Flags().BoolP("debug", "d", false, "Enables debug output from the formatter")
 
-	sectionHelp := `Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). A section can contain a Prefix and a Suffix section which is delimited by ":". These sections can be used for formatting and will only be rendered if the main section contains an entry. The Section order is the same as below, default value is [Standard,Default].
-Std | Standard - Captures all standard packages if they do not match another section
-Prefix(github.com/daixiang0) | pkgPrefix(github.com/daixiang0) - Groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
-Def | Default - Contains all imports that could not be matched to another section type
-[DEPRECATED] Comment(your text here) | CommentLine(your text here) - Prints the specified indented comment
-[DEPRECATED] NL | NewLine - Prints an empty line`
+	sectionHelp := `Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom. The default value is [standard,default].
+standard - standard section that Golang provides officially, like "fmt"
+Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
+default - default section, contains all rest imports`
 
 	skipGenerated = cmd.Flags().Bool("skip-generated", false, "Skip generated files")
 
-	sectionStrings = cmd.Flags().StringSliceP("section", "s", nil, sectionHelp)
+	sectionStrings = cmd.Flags().StringSliceP("section", "s", section.DefaultSections().String(), sectionHelp)
 
 	// deprecated
 	noInlineComments = cmd.Flags().Bool("NoInlineComments", false, "Drops inline comments while formatting")
