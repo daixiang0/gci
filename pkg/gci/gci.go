@@ -180,7 +180,9 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 				AddIndent(&body, &firstWithIndex)
 				body = append(body, src[d.Start:d.End]...)
 			}
-			body = append(body, utils.Linebreak)
+			if body[len(body)-1] != utils.Linebreak {
+				body = append(body, utils.Linebreak)
+			}
 		}
 
 		// remove breakline in the end
