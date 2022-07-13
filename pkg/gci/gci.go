@@ -184,8 +184,10 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 				body = append(body, utils.Linebreak)
 			}
 		}
+	}
 
-		// remove breakline in the end
+	// remove breakline in the end
+	if body[len(body)-1] == utils.Linebreak && tail[0] == utils.Linebreak {
 		body = body[:len(body)-1]
 	}
 
