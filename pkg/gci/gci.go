@@ -174,13 +174,13 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	}
 
 	if len(customKeys) > 0 {
-		sort.Sort(sort.Reverse(sort.StringSlice(customKeys)))
-		for _, k := range customKeys {
+		sort.Sort(sort.StringSlice(customKeys))
+		for i, k := range customKeys {
 			for _, d := range result[k] {
 				AddIndent(&body, &firstWithIndex)
 				body = append(body, src[d.Start:d.End]...)
 			}
-			if body[len(body)-1] != utils.Linebreak {
+			if i+1 < len(customKeys) {
 				body = append(body, utils.Linebreak)
 			}
 		}
