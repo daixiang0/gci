@@ -26,6 +26,16 @@ func TestParse(t *testing.T) {
 			expectedError:   nil,
 		},
 		{
+			input:           []string{"prefix(go-UPPER-case)"},
+			expectedSection: SectionList{Custom{"go-UPPER-case"}},
+			expectedError:   nil,
+		},
+		{
+			input:           []string{"PREFIX(go-UPPER-case)"},
+			expectedSection: SectionList{Custom{"go-UPPER-case"}},
+			expectedError:   nil,
+		},
+		{
 			input:           []string{"prefix("},
 			expectedSection: nil,
 			expectedError:   errors.New("invalid params: prefix("),
