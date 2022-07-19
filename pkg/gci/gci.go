@@ -122,7 +122,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 		return src, src, nil
 	}
 
-	imports, headEnd, tailStart, tailEnd, err := parse.ParseFile(src)
+	imports, headEnd, tailStart, err := parse.ParseFile(src, file.Path())
 	if err != nil {
 		if errors.Is(err, parse.NoImportError{}) {
 			return src, src, nil
@@ -141,7 +141,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	}
 
 	head := src[:headEnd]
-	tail := src[tailStart:tailEnd]
+	tail := src[tailStart:]
 
 	// sort for custom sections
 	allKeys := make([]string, 0, len(result))
