@@ -90,10 +90,9 @@ func ParseFile(src []byte) (ImportList, int, int, int, error) {
 
 	headEnd, _, _ := getImports(f.Imports[0])
 	_, tailStart, _ := getImports(f.Imports[len(f.Imports)-1])
-	tailEnd := f.Decls[len(f.Decls)-1].End()
 
 	sort.Sort(data)
-	return data, headEnd, tailStart, int(tailEnd), nil
+	return data, headEnd, tailStart, len(src), nil
 }
 
 // isGenerated reports whether the source file is generated code.
