@@ -144,10 +144,8 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	tail := src[tailStart:]
 
 	// sort for custom sections
-	allKeys := make([]string, 0, len(result))
 	customKeys := make([]string, 0, len(result))
 	for k := range result {
-		allKeys = append(allKeys, k)
 		if strings.HasPrefix(k, "prefix(") {
 			customKeys = append(customKeys, k)
 		}
@@ -162,9 +160,8 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 			AddIndent(&body, &firstWithIndex)
 			body = append(body, src[d.Start:d.End]...)
 		}
-		if len(allKeys) > 1 {
-			body = append(body, utils.Linebreak)
-		}
+
+		body = append(body, utils.Linebreak)
 	}
 
 	if len(result["default"]) > 0 {
@@ -173,9 +170,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 			body = append(body, src[d.Start:d.End]...)
 		}
 
-		if len(customKeys) > 0 {
-			body = append(body, utils.Linebreak)
-		}
+		body = append(body, utils.Linebreak)
 	}
 
 	if len(customKeys) > 0 {
@@ -189,11 +184,35 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 				body = append(body, utils.Linebreak)
 			}
 		}
+
+		body = append(body, utils.Linebreak)
+	}
+
+	if len(result["blank"]) > 0 {
+		for _, d := range result["blank"] {
+			AddIndent(&body, &firstWithIndex)
+			body = append(body, src[d.Start:d.End]...)
+		}
+
+		body = append(body, utils.Linebreak)
+	}
+
+	if len(result["dot"]) > 0 {
+		for _, d := range result["dot"] {
+			AddIndent(&body, &firstWithIndex)
+			body = append(body, src[d.Start:d.End]...)
+		}
+
+		body = append(body, utils.Linebreak)
 	}
 
 	// remove breakline in the end
-	if body[len(body)-1] == utils.Linebreak && tail[0] == utils.Linebreak {
+	for body[len(body)-1] == utils.Linebreak {
 		body = body[:len(body)-1]
+	}
+
+	if tail[0] != utils.Linebreak {
+		body = append(body, utils.Linebreak)
 	}
 
 	var totalLen int
