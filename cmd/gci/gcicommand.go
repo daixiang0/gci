@@ -46,10 +46,12 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 
 	debug = cmd.Flags().BoolP("debug", "d", false, "Enables debug output from the formatter")
 
-	sectionHelp := `Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom. The default value is [standard,default].
+	sectionHelp := `Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
 standard - standard section that Golang provides officially, like "fmt"
 Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix.
-default - default section, contains all rest imports`
+default - default section, contains all rest imports
+blank - blank section, contains all blank imports. This section is not presed unless explicitly enabled.
+dot - dot section, contains all dot imports. This section is not presed unless explicitly enabled.`
 
 	skipGenerated = cmd.Flags().Bool("skip-generated", false, "Skip generated files")
 
