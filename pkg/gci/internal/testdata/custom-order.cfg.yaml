@@ -1,3 +1,4 @@
+custom-order: true
 sections:
   - Prefix(github.com/daixiang0)
   - Default

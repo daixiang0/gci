@@ -155,9 +155,34 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 
 	var body []byte
 
+	// if default order sorted sections
+	if !cfg.CustomOrder {
+		orders := map[string]int{
+			"standard": 0,
+			"default":  1,
+			"custom":   2,
+			"blank":    3,
+			"dot":      4,
+		}
+
+		sort.Slice(cfg.Sections, func(i, j int) bool {
+			sectionI, sectionJ := cfg.Sections[i].String(), cfg.Sections[j].String()
+
+			if strings.HasPrefix(sectionI, "prefix(") {
+				sectionI = "custom"
+			}
+
+			if strings.HasPrefix(sectionJ, "prefix(") {
+				sectionJ = "custom"
+			}
+
+			return orders[sectionI] < orders[sectionJ]
+		})
+	}
+
 	// order by section list
-	for _, section := range cfg.Sections {
-		if strings.Contains(section.String(), "prefix") {
+	for _, s := range cfg.Sections {
+		if strings.HasPrefix(s.String(), "prefix(") {
 
 			if len(customKeys) > 0 {
 				if body != nil && len(body) > 0 {
@@ -165,7 +190,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 				}
 				sort.Sort(sort.StringSlice(customKeys))
 				for _, k := range customKeys {
-					if !strings.Contains(section.String(), k) {
+					if !strings.Contains(s.String(), k) {
 						continue
 					}
 					for _, d := range result[k] {
@@ -177,11 +202,11 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 
 			continue
 		}
-		if len(result[section.String()]) > 0 {
+		if len(result[s.String()]) > 0 {
 			if body != nil && len(body) > 0 {
 				body = append(body, utils.Linebreak)
 			}
-			for _, d := range result[section.String()] {
+			for _, d := range result[s.String()] {
 				AddIndent(&body, &firstWithIndex)
 				body = append(body, src[d.Start:d.End]...)
 			}

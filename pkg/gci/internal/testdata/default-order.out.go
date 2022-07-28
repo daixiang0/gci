@@ -2,7 +2,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/daixiang0/a"
-
 	g "github.com/golang"
+
+	"github.com/daixiang0/a"
 )
