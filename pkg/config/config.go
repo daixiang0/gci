@@ -13,7 +13,7 @@ type BoolConfig struct {
 	NoPrefixComments bool `yaml:"no-prefixComments"`
 	Debug            bool `yaml:"-"`
 	SkipGenerated    bool `yaml:"skipGenerated"`
-	CustomOrder      bool `yaml:"custom-order"`
+	CustomOrder      bool `yaml:"customOrder"`
 }
 
 type Config struct {
