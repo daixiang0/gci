@@ -23,14 +23,6 @@ import (
 	"github.com/daixiang0/gci/pkg/utils"
 )
 
-var defaultOrder = map[string]int{
-	"standard": 0,
-	"default":  1,
-	"custom":   2,
-	"blank":    3,
-	"dot":      4,
-}
-
 func LocalFlagsToSections(localFlags []string) section.SectionList {
 	sections := section.DefaultSections()
 	// Add all local arguments as ImportPrefix sections
@@ -162,23 +154,6 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	firstWithIndex := true
 
 	var body []byte
-
-	// if default order sorted sections
-	if !cfg.CustomOrder {
-		sort.Slice(cfg.Sections, func(i, j int) bool {
-			sectionI, sectionJ := cfg.Sections[i].String(), cfg.Sections[j].String()
-
-			if strings.HasPrefix(sectionI, "prefix(") {
-				sectionI = "custom"
-			}
-
-			if strings.HasPrefix(sectionJ, "prefix(") {
-				sectionJ = "custom"
-			}
-
-			return defaultOrder[sectionI] < defaultOrder[sectionJ]
-		})
-	}
 
 	// order by section list
 	for _, s := range cfg.Sections {
