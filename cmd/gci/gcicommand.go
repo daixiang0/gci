@@ -12,7 +12,7 @@ import (
 type processingFunc = func(args []string, gciCfg config.Config) error
 
 func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdInSupport bool, processingFunc processingFunc) *cobra.Command {
-	var noInlineComments, noPrefixComments, skipGenerated, debug *bool
+	var noInlineComments, noPrefixComments, skipGenerated, customOrder, debug *bool
 	var sectionStrings, sectionSeparatorStrings *[]string
 	cmd := cobra.Command{
 		Use:               use,
@@ -26,6 +26,7 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 				NoPrefixComments: *noPrefixComments,
 				Debug:            *debug,
 				SkipGenerated:    *skipGenerated,
+				CustomOrder:      *customOrder,
 			}
 			gciCfg, err := config.YamlConfig{Cfg: fmtCfg, SectionStrings: *sectionStrings, SectionSeparatorStrings: *sectionSeparatorStrings}.Parse()
 			if err != nil {
@@ -55,6 +56,7 @@ dot - dot section, contains all dot imports. This section is not presed unless e
 
 	skipGenerated = cmd.Flags().Bool("skip-generated", false, "Skip generated files")
 
+	customOrder = cmd.Flags().Bool("custom-order", false, "Enable custom order of sections")
 	sectionStrings = cmd.Flags().StringSliceP("section", "s", section.DefaultSections().String(), sectionHelp)
 
 	// deprecated

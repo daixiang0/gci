@@ -2,17 +2,28 @@ package config
 
 import (
 	"io/ioutil"
+	"sort"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 
 	"github.com/daixiang0/gci/pkg/section"
 )
 
+var defaultOrder = map[string]int{
+	"standard": 0,
+	"default":  1,
+	"custom":   2,
+	"blank":    3,
+	"dot":      4,
+}
+
 type BoolConfig struct {
 	NoInlineComments bool `yaml:"no-inlineComments"`
 	NoPrefixComments bool `yaml:"no-prefixComments"`
 	Debug            bool `yaml:"-"`
 	SkipGenerated    bool `yaml:"skipGenerated"`
+	CustomOrder      bool `yaml:"customOrder"`
 }
 
 type Config struct {
@@ -36,6 +47,23 @@ func (g YamlConfig) Parse() (*Config, error) {
 	}
 	if sections == nil {
 		sections = section.DefaultSections()
+	}
+
+	// if default order sorted sections
+	if !g.Cfg.CustomOrder {
+		sort.Slice(sections, func(i, j int) bool {
+			sectionI, sectionJ := sections[i].String(), sections[j].String()
+
+			if strings.HasPrefix(sectionI, "prefix(") {
+				sectionI = "custom"
+			}
+
+			if strings.HasPrefix(sectionJ, "prefix(") {
+				sectionJ = "custom"
+			}
+
+			return defaultOrder[sectionI] < defaultOrder[sectionJ]
+		})
 	}
 
 	sectionSeparators, err := section.Parse(g.SectionSeparatorStrings)

@@ -59,7 +59,7 @@ Flags:
                           default - default section, contains all rest imports
                           blank - blank section, contains all blank imports. This section is not presed unless explicitly enabled. (default [standard,default])
       --skip-generated    Skip generated files
-
+      --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
 ```
 
 ```shell
@@ -82,7 +82,7 @@ Flags:
                           blank - blank section, contains all blank imports. This section is not presed unless explicitly enabled.
                           dot - dot section, contains all dot imports. This section is not presed unless explicitly enabled. (default [standard,default])
       --skip-generated    Skip generated files
-
+      --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
 ```
 
 ```shell
@@ -102,7 +102,7 @@ Flags:
                           blank - blank section, contains all blank imports. This section is not presed unless explicitly enabled.
                           dot - dot section, contains all dot imports. This section is not presed unless explicitly enabled. (default [standard,default])
       --skip-generated    Skip generated files
-
+      --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
 ```
 
 ### Old style

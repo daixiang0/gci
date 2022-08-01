@@ -154,56 +154,37 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	firstWithIndex := true
 
 	var body []byte
-	// order: standard > default > custom
-	if len(result["standard"]) > 0 {
-		for _, d := range result["standard"] {
-			AddIndent(&body, &firstWithIndex)
-			body = append(body, src[d.Start:d.End]...)
+
+	// order by section list
+	for _, s := range cfg.Sections {
+		if strings.HasPrefix(s.String(), "prefix(") {
+			if len(customKeys) > 0 {
+				if body != nil && len(body) > 0 {
+					body = append(body, utils.Linebreak)
+				}
+				sort.Sort(sort.StringSlice(customKeys))
+				for _, k := range customKeys {
+					if !strings.Contains(s.String(), k) {
+						continue
+					}
+					for _, d := range result[k] {
+						AddIndent(&body, &firstWithIndex)
+						body = append(body, src[d.Start:d.End]...)
+					}
+				}
+			}
+
+			continue
 		}
-
-		body = append(body, utils.Linebreak)
-	}
-
-	if len(result["default"]) > 0 {
-		for _, d := range result["default"] {
-			AddIndent(&body, &firstWithIndex)
-			body = append(body, src[d.Start:d.End]...)
-		}
-
-		body = append(body, utils.Linebreak)
-	}
-
-	if len(customKeys) > 0 {
-		sort.Sort(sort.StringSlice(customKeys))
-		for i, k := range customKeys {
-			for _, d := range result[k] {
+		if len(result[s.String()]) > 0 {
+			if body != nil && len(body) > 0 {
+				body = append(body, utils.Linebreak)
+			}
+			for _, d := range result[s.String()] {
 				AddIndent(&body, &firstWithIndex)
 				body = append(body, src[d.Start:d.End]...)
 			}
-			if i+1 < len(customKeys) {
-				body = append(body, utils.Linebreak)
-			}
 		}
-
-		body = append(body, utils.Linebreak)
-	}
-
-	if len(result["blank"]) > 0 {
-		for _, d := range result["blank"] {
-			AddIndent(&body, &firstWithIndex)
-			body = append(body, src[d.Start:d.End]...)
-		}
-
-		body = append(body, utils.Linebreak)
-	}
-
-	if len(result["dot"]) > 0 {
-		for _, d := range result["dot"] {
-			AddIndent(&body, &firstWithIndex)
-			body = append(body, src[d.Start:d.End]...)
-		}
-
-		body = append(body, utils.Linebreak)
 	}
 
 	// remove breakline in the end
