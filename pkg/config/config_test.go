@@ -29,4 +29,5 @@ func TestInitGciConfigFromYAML(t *testing.T) {
 	assert.Equal(t, section.SectionList{section.Default{}}, gciCfg.Sections)
 	assert.False(t, gciCfg.Debug)
 	assert.True(t, gciCfg.SkipGenerated)
+	assert.False(t, gciCfg.CustomOrder)
 }
