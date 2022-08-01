@@ -27,10 +27,18 @@ All import blocks use one TAB(`\t`) as Indent.
 
 `nolint` is hard to handle at section level, GCI will consider it as a single comment.
 
-## Download
+## Installation
+
+To download and install the highest available release version -
 
 ```shell
-$ go get github.com/daixiang0/gci
+$ go install github.com/daixiang0/gci@latest
+```
+
+You may also specify a specific version, for example:
+
+```shell
+$ go install github.com/daixiang0/gci@v0.6.0
 ```
 
 ## Usage
