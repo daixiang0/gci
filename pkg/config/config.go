@@ -11,11 +11,11 @@ import (
 )
 
 var defaultOrder = map[string]int{
-	"standard": 0,
-	"default":  1,
-	"custom":   2,
-	"blank":    3,
-	"dot":      4,
+	section.StandardType: 0,
+	section.DefaultType:  1,
+	section.CustomType:   2,
+	section.BlankType:    3,
+	section.DotType:      4,
 }
 
 type BoolConfig struct {
@@ -52,16 +52,11 @@ func (g YamlConfig) Parse() (*Config, error) {
 	// if default order sorted sections
 	if !g.Cfg.CustomOrder {
 		sort.Slice(sections, func(i, j int) bool {
-			sectionI, sectionJ := sections[i].String(), sections[j].String()
+			sectionI, sectionJ := sections[i].Type(), sections[j].Type()
 
-			if strings.HasPrefix(sectionI, "prefix(") {
-				sectionI = "custom"
+			if strings.Compare(sectionI, sectionJ) == 0 {
+				return strings.Compare(sections[i].String(), sections[j].String()) < 0
 			}
-
-			if strings.HasPrefix(sectionJ, "prefix(") {
-				sectionJ = "custom"
-			}
-
 			return defaultOrder[sectionI] < defaultOrder[sectionJ]
 		})
 	}
