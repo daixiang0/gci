@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"sort"
-	"strings"
 	"sync"
 
 	"github.com/hexops/gotextdiff"
@@ -143,39 +141,12 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	head := src[:headEnd]
 	tail := src[tailStart:]
 
-	// sort for custom sections
-	customKeys := make([]string, 0, len(result))
-	for k := range result {
-		if strings.HasPrefix(k, "prefix(") {
-			customKeys = append(customKeys, k)
-		}
-	}
-
 	firstWithIndex := true
 
 	var body []byte
 
 	// order by section list
 	for _, s := range cfg.Sections {
-		if strings.HasPrefix(s.String(), "prefix(") {
-			if len(customKeys) > 0 {
-				if body != nil && len(body) > 0 {
-					body = append(body, utils.Linebreak)
-				}
-				sort.Sort(sort.StringSlice(customKeys))
-				for _, k := range customKeys {
-					if !strings.Contains(s.String(), k) {
-						continue
-					}
-					for _, d := range result[k] {
-						AddIndent(&body, &firstWithIndex)
-						body = append(body, src[d.Start:d.End]...)
-					}
-				}
-			}
-
-			continue
-		}
 		if len(result[s.String()]) > 0 {
 			if body != nil && len(body) > 0 {
 				body = append(body, utils.Linebreak)
