@@ -138,8 +138,22 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 		return nil, nil, err
 	}
 
-	head := src[:headEnd]
+	var head []byte
+	if src[headEnd-1] == '\t' {
+		head = src[:headEnd]
+	} else {
+		// handle multiple import blocks
+		// cover `import ` to `import (`
+		head = make([]byte, headEnd)
+		copy(head, src[:headEnd])
+		head = append(head, []byte{40, 10, 9}...)
+	}
+
 	tail := src[tailStart:]
+	// for test
+	if len(tail) == 0 {
+		tail = []byte(")\n")
+	}
 
 	firstWithIndex := true
 
