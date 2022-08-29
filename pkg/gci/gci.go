@@ -129,7 +129,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	}
 
 	// do not do format if only one import
-	if len(imports) == 1 {
+	if len(imports) <= 1 {
 		return src, src, nil
 	}
 
