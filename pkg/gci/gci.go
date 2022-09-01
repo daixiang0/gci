@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	goFormat "go/format"
 	"os"
 	"sync"
 
@@ -172,11 +173,6 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 		}
 	}
 
-	// remove breakline in the end
-	for body[len(body)-1] == utils.Linebreak {
-		body = body[:len(body)-1]
-	}
-
 	if tail[0] != utils.Linebreak {
 		body = append(body, utils.Linebreak)
 	}
@@ -190,6 +186,11 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	var i int
 	for _, s := range slices {
 		i += copy(dist[i:], s)
+	}
+
+	dist, err = goFormat.Source(dist)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return src, dist, nil

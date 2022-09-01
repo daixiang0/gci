@@ -1,4 +1,5 @@
 package main
+
 import (
 	"fmt"
 
@@ -6,7 +7,6 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-
 
 type test int
 

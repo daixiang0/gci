@@ -1,10 +1,9 @@
 package main
-
 import (
 	"fmt"
 
-	g "github.com/golang"
+  // comment
+	g  "github.com/golang"    // comment
 
-	a "github.com/daixiang0/gci"
 	"github.com/daixiang0/gci"
 )
