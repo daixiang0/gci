@@ -1,5 +1,10 @@
 ---
 name: Bugs or Feature Requests
+about: Bugs or Feature Requests
+title: ''
+labels: ''
+assignees: ''
+
 ---
 
 ### What version of GCI are you using?
@@ -20,6 +25,3 @@ name: Bugs or Feature Requests
 
 
 ### What did you see instead?
-
-
-
