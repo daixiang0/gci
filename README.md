@@ -32,13 +32,13 @@ All import blocks use one TAB(`\t`) as Indent.
 To download and install the highest available release version -
 
 ```shell
-$ go install github.com/daixiang0/gci@latest
+go install github.com/daixiang0/gci@latest
 ```
 
 You may also specify a specific version, for example:
 
 ```shell
-$ go install github.com/daixiang0/gci@v0.6.0
+go install github.com/daixiang0/gci@v0.6.0
 ```
 
 ## Usage
