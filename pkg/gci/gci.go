@@ -140,7 +140,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	}
 
 	var head []byte
-	if src[headEnd-1] == '\t' {
+	if src[headEnd-1] == '\t' || src[headEnd-1] == utils.Linebreak {
 		head = src[:headEnd]
 	} else {
 		// handle multiple import blocks
