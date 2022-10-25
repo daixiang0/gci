@@ -140,20 +140,17 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	}
 
 	var head []byte
-	if src[headEnd-1] == '\t' || src[headEnd-1] == utils.Linebreak {
-		head = src[:headEnd]
-	} else {
-		// handle multiple import blocks
-		// cover `import ` to `import (`
-		head = make([]byte, headEnd)
-		copy(head, src[:headEnd])
-		head = append(head, []byte{40, 10, 9}...)
-	}
-
+	// use `import` as key to locate
+	importEnd := bytes.LastIndex(src[:headEnd], []byte{'t'})
+	head = make([]byte, importEnd+1)
+	copy(head, src[:importEnd+1])
+	// append `(\n\t`
+	head = append(head, []byte{utils.LeftParenthesis, utils.Linebreak, utils.Indent}...)
+	log.L().Debug(fmt.Sprintf("head: %s", head))
 	tail := src[tailStart:]
 	// for test
 	if len(tail) == 0 {
-		tail = []byte(")\n")
+		tail = []byte{utils.RightParenthesis, utils.Linebreak}
 	}
 
 	firstWithIndex := true
@@ -176,6 +173,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	if tail[0] != utils.Linebreak {
 		body = append(body, utils.Linebreak)
 	}
+	log.L().Debug(fmt.Sprintf("body: %s", body))
 
 	var totalLen int
 	slices := [][]byte{head, body, tail}
@@ -187,7 +185,6 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	for _, s := range slices {
 		i += copy(dist[i:], s)
 	}
-
 	dist, err = goFormat.Source(dist)
 	if err != nil {
 		return nil, nil, err
