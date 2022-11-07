@@ -36,7 +36,7 @@ func TestRun(t *testing.T) {
 	}
 	for _, testFile := range testFiles {
 		fileBaseName := strings.TrimSuffix(testFile, ".in.go")
-		t.Run(fileBaseName, func(t *testing.T) {
+		t.Run("pkg/gci/"+testFile, func(t *testing.T) {
 			t.Parallel()
 
 			gciCfg, err := config.InitializeGciConfigFromYAML(fileBaseName + ".cfg.yaml")

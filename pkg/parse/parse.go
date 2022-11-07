@@ -81,22 +81,52 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, error) {
 		return nil, 0, 0, NoImportError{}
 	}
 
-	var headEnd, tailStart int
+	var (
+		// headEnd means the start of import block
+		headEnd int
+		// tailStart means the end + 1 of import block
+		tailStart int
+		// lastImportStart means the start of last import block
+		lastImportStart int
+		data            ImportList
+	)
 
-	var data ImportList
-	for i, imp := range f.Imports {
+	for i, d := range f.Decls {
+		switch d.(type) {
+		case *ast.GenDecl:
+			dd := d.(*ast.GenDecl)
+			if dd.Tok == token.IMPORT {
+				// there are two cases, both end with linebreak:
+				// 1.
+				// import (
+				//	 "xxxx"
+				// )
+				// 2.
+				// import "xxx"
+				if headEnd == 0 {
+					headEnd = int(d.Pos()) - 1
+				}
+				tailStart = int(d.End())
+				lastImportStart = i
+			}
+		}
+	}
+
+	if len(f.Decls) > lastImportStart+1 {
+		tailStart = int(f.Decls[lastImportStart+1].Pos() - 1)
+	}
+
+	for _, imp := range f.Imports {
 		if imp.Path.Value == C {
+			if imp.Comment != nil {
+				headEnd = int(imp.Comment.End())
+			} else {
+				headEnd = int(imp.Path.End())
+			}
 			continue
 		}
 
 		start, end, name := getImports(imp)
-
-		if headEnd == 0 {
-			headEnd = start
-		}
-		if i == len(f.Imports)-1 {
-			tailStart = end
-		}
 
 		data = append(data, &GciImports{
 			Start: start,
