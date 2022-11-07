@@ -9,3 +9,9 @@ import (
 
 	"github.com/daixiang0/test"
 )
+
+import "math"
+
+
+func main() {
+}
