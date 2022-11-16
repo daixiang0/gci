@@ -86,15 +86,14 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, error) {
 		headEnd int
 		// tailStart means the end + 1 of import block
 		tailStart int
-		// lastImportStart means the start of last import block
-		lastImportStart int
-		data            ImportList
+		data      ImportList
 	)
 
-	for i, d := range f.Decls {
+	for _, d := range f.Decls {
 		switch d.(type) {
 		case *ast.GenDecl:
 			dd := d.(*ast.GenDecl)
+
 			if dd.Tok == token.IMPORT {
 				// there are two cases, both end with linebreak:
 				// 1.
@@ -107,13 +106,8 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, error) {
 					headEnd = int(d.Pos()) - 1
 				}
 				tailStart = int(d.End())
-				lastImportStart = i
 			}
 		}
-	}
-
-	if len(f.Decls) > lastImportStart+1 {
-		tailStart = int(f.Decls[lastImportStart+1].Pos() - 1)
 	}
 
 	for _, imp := range f.Imports {
