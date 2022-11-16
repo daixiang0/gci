@@ -73,7 +73,7 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 
 	for _, file := range fileReferences {
 		filePath := file.Name()
-		unmodifiedFile, formattedFile, err := gci.LoadFormatGoFile(io.File{filePath}, *gciCfg)
+		unmodifiedFile, formattedFile, err := gci.LoadFormatGoFile(io.File{FilePath: filePath}, *gciCfg)
 		if err != nil {
 			return nil, err
 		}
