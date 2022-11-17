@@ -156,8 +156,10 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 		}
 	}
 
-	head := src[:headEnd]
-	tail := src[tailStart:]
+	head := make([]byte, headEnd)
+	copy(head, src[:headEnd])
+	tail := make([]byte, len(src)-tailStart)
+	copy(tail, src[tailStart:])
 
 	head = append(head, utils.Linebreak)
 	// add beginning of import block

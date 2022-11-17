@@ -1,13 +1,13 @@
 package gci
 
 import (
-	"io/ioutil"
 	"os"
 	"runtime"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/daixiang0/gci/pkg/config"
 	"github.com/daixiang0/gci/pkg/io"
@@ -44,11 +44,17 @@ func TestRun(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			_, formattedFile, err := LoadFormatGoFile(io.File{FilePath: fileBaseName + ".in.go"}, *gciCfg)
+			inputSrcFile := io.File{FilePath: fileBaseName + ".in.go"}
+			inputSrc, err := inputSrcFile.Load()
+			require.NoError(t, err)
+
+			unmodifiedFile, formattedFile, err := LoadFormatGoFile(inputSrcFile, *gciCfg)
 			if err != nil {
 				t.Fatal(err)
 			}
-			expectedOutput, err := ioutil.ReadFile(fileBaseName + ".out.go")
+			assert.Equal(t, inputSrc, unmodifiedFile)
+
+			expectedOutput, err := os.ReadFile(fileBaseName + ".out.go")
 			if err != nil {
 				t.Fatal(err)
 			}
