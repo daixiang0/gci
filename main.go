@@ -6,7 +6,7 @@ import (
 	"github.com/daixiang0/gci/cmd/gci"
 )
 
-var version = "0.8.5"
+var version = "0.9.0"
 
 func main() {
 	e := gci.NewExecutor(version)

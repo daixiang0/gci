@@ -23,6 +23,8 @@ By default, blank and dot sections are not used and the corresponding lines end 
 
 All import blocks use one TAB(`\t`) as Indent.
 
+Since v0.9.0, GCI always puts C import block as the first.
+
 **Note**:
 
 `nolint` is hard to handle at section level, GCI will consider it as a single comment.
