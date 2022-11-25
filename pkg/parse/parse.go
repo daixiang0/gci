@@ -70,15 +70,15 @@ func getImports(imp *ast.ImportSpec) (start, end int, name string) {
 	return
 }
 
-func ParseFile(src []byte, filename string) (ImportList, int, int, error) {
+func ParseFile(src []byte, filename string) (ImportList, int, int, int, int, error) {
 	fileSet := token.NewFileSet()
 	f, err := parser.ParseFile(fileSet, filename, src, parser.ParseComments)
 	if err != nil {
-		return nil, 0, 0, err
+		return nil, 0, 0, 0, 0, err
 	}
 
 	if len(f.Imports) == 0 {
-		return nil, 0, 0, NoImportError{}
+		return nil, 0, 0, 0, 0, NoImportError{}
 	}
 
 	var (
@@ -86,15 +86,20 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, error) {
 		headEnd int
 		// tailStart means the end + 1 of import block
 		tailStart int
-		data      ImportList
+		// cStart means the start of C import block
+		cStart int
+		// cEnd means the end of C import block
+		cEnd int
+		data ImportList
 	)
 
-	for _, d := range f.Decls {
-		switch d.(type) {
+	for index, decl := range f.Decls {
+		switch decl.(type) {
+		// skip BadDecl and FuncDecl
 		case *ast.GenDecl:
-			dd := d.(*ast.GenDecl)
+			genDecl := decl.(*ast.GenDecl)
 
-			if dd.Tok == token.IMPORT {
+			if genDecl.Tok == token.IMPORT {
 				// there are two cases, both end with linebreak:
 				// 1.
 				// import (
@@ -103,35 +108,56 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, error) {
 				// 2.
 				// import "xxx"
 				if headEnd == 0 {
-					headEnd = int(d.Pos()) - 1
+					headEnd = int(decl.Pos()) - 1
 				}
-				tailStart = int(d.End())
+				tailStart = int(decl.End())
+
+				for _, spec := range genDecl.Specs {
+					imp := spec.(*ast.ImportSpec)
+					// there are only one C import block
+					// ensure C import block is the first import block
+					if imp.Path.Value == C {
+						/*
+							common case:
+
+							// #include <png.h>
+							import "C"
+
+							notice that decl.Pos() == genDecl.Pos() < genDecl.Doc.Pos()
+						*/
+						if genDecl.Doc != nil {
+							cStart = int(genDecl.Doc.Pos()) - 1
+							// if C import block is the first, update headEnd
+							if index == 0 {
+								headEnd = cStart
+							}
+						} else {
+							/*
+								import "C"
+							*/
+							cStart = int(decl.Pos()) - 1
+						}
+
+						cEnd = int(decl.End())
+
+						continue
+					}
+
+					start, end, name := getImports(imp)
+
+					data = append(data, &GciImports{
+						Start: start,
+						End:   end,
+						Name:  name,
+						Path:  strings.Trim(imp.Path.Value, `"`),
+					})
+				}
 			}
 		}
-	}
-
-	for _, imp := range f.Imports {
-		if imp.Path.Value == C {
-			if imp.Comment != nil {
-				headEnd = int(imp.Comment.End())
-			} else {
-				headEnd = int(imp.Path.End())
-			}
-			continue
-		}
-
-		start, end, name := getImports(imp)
-
-		data = append(data, &GciImports{
-			Start: start,
-			End:   end,
-			Name:  name,
-			Path:  strings.Trim(imp.Path.Value, `"`),
-		})
 	}
 
 	sort.Sort(data)
-	return data, headEnd, tailStart, nil
+	return data, headEnd, tailStart, cStart, cEnd, nil
 }
 
 // IsGeneratedFileByComment reports whether the source file is generated code.

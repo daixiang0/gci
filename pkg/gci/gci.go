@@ -121,7 +121,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 		return src, src, nil
 	}
 
-	imports, headEnd, tailStart, err := parse.ParseFile(src, file.Path())
+	imports, headEnd, tailStart, cStart, cEnd, err := parse.ParseFile(src, file.Path())
 	if err != nil {
 		if errors.Is(err, parse.NoImportError{}) {
 			return src, src, nil
@@ -162,6 +162,12 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	copy(tail, src[tailStart:])
 
 	head = append(head, utils.Linebreak)
+	// ensure C
+	if cStart != 0 {
+		head = append(head, src[cStart:cEnd]...)
+		head = append(head, utils.Linebreak)
+	}
+
 	// add beginning of import block
 	head = append(head, `import (`...)
 	// add end of import block
