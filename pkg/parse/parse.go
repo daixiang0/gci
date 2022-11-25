@@ -123,7 +123,7 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, int, int, err
 							// #include <png.h>
 							import "C"
 
-							notice that decl.Pos() == genDecl.Pos() < genDecl.Doc.Pos()
+							notice that decl.Pos() == genDecl.Pos() > genDecl.Doc.Pos()
 						*/
 						if genDecl.Doc != nil {
 							cStart = int(genDecl.Doc.Pos()) - 1
@@ -133,6 +133,8 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, int, int, err
 							}
 						} else {
 							/*
+								special case:
+
 								import "C"
 							*/
 							cStart = int(decl.Pos()) - 1
