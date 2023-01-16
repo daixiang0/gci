@@ -40,6 +40,11 @@ func TestParse(t *testing.T) {
 			expectedSection: nil,
 			expectedError:   errors.New("invalid params: prefix("),
 		},
+		{
+			input:           []string{"prefix(domainA;domainB)"},
+			expectedSection: SectionList{Custom{"domainA;domainB"}},
+			expectedError:   nil,
+		},
 	}
 	for _, test := range testCases {
 		parsedSection, err := Parse(test.input)
