@@ -15,9 +15,12 @@ type Custom struct {
 const CustomType = "custom"
 
 func (c Custom) MatchSpecificity(spec *parse.GciImports) specificity.MatchSpecificity {
-	if strings.HasPrefix(spec.Path, c.Prefix) {
-		return specificity.Match{Length: len(c.Prefix)}
+	for _, prefix := range strings.Split(c.Prefix, ";") {
+		if strings.HasPrefix(spec.Path, prefix) {
+			return specificity.Match{Length: len(prefix)}
+		}
 	}
+
 	return specificity.MisMatch{}
 }
 
