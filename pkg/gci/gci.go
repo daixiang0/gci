@@ -170,6 +170,7 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 
 	// add beginning of import block
 	head = append(head, `import (`...)
+	head = append(head, utils.Linebreak)
 	// add end of import block
 	body = append(body, []byte{utils.RightParenthesis, utils.Linebreak}...)
 
