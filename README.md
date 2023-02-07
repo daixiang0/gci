@@ -9,7 +9,20 @@ GCI considers a import block based on AST as below:
 Doc
 Name Path Comment
 ```
-All comments will keep as they were, except the independent comment blocks(line breaks before and after).
+All comments will keep as they were, except the isolated comment blocks.
+
+The isolated comment blocks like below:
+```
+import (
+  "fmt" 
+  // this line is isolated comment
+
+  // those lines belong to one
+  // isolated comment blocks
+
+  "github.com/daixiang0/gci"
+)
+```
 
 GCI splits all import blocks into different sections, now support five section type:
 - standard: Golang official imports, like "fmt"
