@@ -28,7 +28,7 @@ func (list SectionList) String() []string {
 }
 
 func DefaultSections() SectionList {
-	return SectionList{Standard{}, Default{}}
+	return SectionList{NewStandard(), Default{}}
 }
 
 func DefaultSectionSeparators() SectionList {
