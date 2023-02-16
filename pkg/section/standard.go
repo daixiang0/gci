@@ -1,9 +1,10 @@
 package section
 
 import (
+	"golang.org/x/tools/go/packages"
+
 	"github.com/daixiang0/gci/pkg/parse"
 	"github.com/daixiang0/gci/pkg/specificity"
-	"golang.org/x/tools/go/packages"
 )
 
 const StandardType = "standard"
@@ -18,7 +19,7 @@ func NewStandard() Standard {
 		panic(err)
 	}
 
-	var standardPackages = make(map[string]struct{})
+	standardPackages := make(map[string]struct{})
 	for _, p := range pkgs {
 		standardPackages[p.PkgPath] = struct{}{}
 	}
