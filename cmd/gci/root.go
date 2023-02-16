@@ -68,6 +68,7 @@ func (e *Executor) runInCompatibilityMode(cmd *cobra.Command, args []string) err
 			NoPrefixComments: false,
 			Debug:            false,
 			SkipGenerated:    false,
+			SkipVendor:       false,
 		},
 		Sections:          sections,
 		SectionSeparators: sectionSeparators,

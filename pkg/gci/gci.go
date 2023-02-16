@@ -86,11 +86,11 @@ func DiffFormattedFilesToArray(paths []string, cfg config.Config, diffs *[]strin
 type fileFormattingFunc func(filePath string, unmodifiedFile, formattedFile []byte) error
 
 func processStdInAndGoFilesInPaths(paths []string, cfg config.Config, fileFunc fileFormattingFunc) error {
-	return ProcessFiles(io.StdInGenerator.Combine(io.GoFilesInPathsGenerator(paths)), cfg, fileFunc)
+	return ProcessFiles(io.StdInGenerator.Combine(io.GoFilesInPathsGenerator(paths, cfg.SkipVendor)), cfg, fileFunc)
 }
 
 func processGoFilesInPaths(paths []string, cfg config.Config, fileFunc fileFormattingFunc) error {
-	return ProcessFiles(io.GoFilesInPathsGenerator(paths), cfg, fileFunc)
+	return ProcessFiles(io.GoFilesInPathsGenerator(paths, cfg.SkipVendor), cfg, fileFunc)
 }
 
 func ProcessFiles(fileGenerator io.FileGeneratorFunc, cfg config.Config, fileFunc fileFormattingFunc) error {

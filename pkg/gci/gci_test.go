@@ -21,7 +21,7 @@ func init() {
 
 var testFilesPath = "internal/testdata"
 
-func isTestInputFile(file os.FileInfo) bool {
+func isTestInputFile(_ string, file os.FileInfo) bool {
 	return !file.IsDir() && strings.HasSuffix(file.Name(), ".in.go")
 }
 
