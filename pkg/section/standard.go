@@ -1,6 +1,8 @@
 package section
 
 import (
+	"strings"
+
 	"github.com/daixiang0/gci/pkg/parse"
 	"github.com/daixiang0/gci/pkg/specificity"
 )
@@ -25,6 +27,8 @@ func (s Standard) Type() string {
 }
 
 func isStandard(pkg string) bool {
-	_, ok := standardPackages[pkg]
-	return ok
+	if index := strings.Index(pkg, "/"); index != -1 {
+		pkg = pkg[:index]
+	}
+	return !strings.Contains(pkg, ".")
 }
