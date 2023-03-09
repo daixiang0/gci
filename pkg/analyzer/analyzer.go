@@ -1,13 +1,11 @@
 package analyzer
 
 import (
-	"bytes"
 	"fmt"
 	"go/token"
 	"strings"
 
 	"golang.org/x/tools/go/analysis"
-	"golang.org/x/tools/go/analysis/passes/inspect"
 
 	"github.com/daixiang0/gci/pkg/config"
 	"github.com/daixiang0/gci/pkg/gci"
@@ -44,10 +42,9 @@ func init() {
 }
 
 var Analyzer = &analysis.Analyzer{
-	Name:     "gci",
-	Doc:      "A tool that control golang package import order and make it always deterministic.",
-	Requires: []*analysis.Analyzer{inspect.Analyzer},
-	Run:      runAnalysis,
+	Name: "gci",
+	Doc:  "A tool that control golang package import order and make it always deterministic.",
+	Run:  runAnalysis,
 }
 
 func runAnalysis(pass *analysis.Pass) (interface{}, error) {
@@ -77,37 +74,21 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-		// search for a difference
-		fileRunes := bytes.Runes(unmodifiedFile)
-		formattedRunes := bytes.Runes(formattedFile)
-		diffIdx := compareRunes(fileRunes, formattedRunes)
-		switch diffIdx {
-		case -1:
-			// no difference
-		default:
-			pass.Reportf(file.Pos(diffIdx), "fix by `%s %s`", generateCmdLine(*gciCfg), filePath)
+		fix, err := GetSuggestedFix(file, unmodifiedFile, formattedFile)
+		if err != nil {
+			return nil, err
 		}
+		if fix == nil {
+			// no difference
+			continue
+		}
+		pass.Report(analysis.Diagnostic{
+			Pos:            fix.TextEdits[0].Pos,
+			Message:        fmt.Sprintf("fix by `%s %s`", generateCmdLine(*gciCfg), filePath),
+			SuggestedFixes: []analysis.SuggestedFix{*fix},
+		})
 	}
 	return nil, nil
-}
-
-func compareRunes(a, b []rune) (differencePos int) {
-	// check shorter rune slice first to prevent invalid array access
-	shorterRune := a
-	if len(b) < len(a) {
-		shorterRune = b
-	}
-	// check for differences up to where the length is identical
-	for idx := 0; idx < len(shorterRune); idx++ {
-		if a[idx] != b[idx] {
-			return idx
-		}
-	}
-	// check that we have compared two equally long rune arrays
-	if len(a) != len(b) {
-		return len(shorterRune) + 1
-	}
-	return -1
 }
 
 func parseGciConfiguration() (*config.Config, error) {
