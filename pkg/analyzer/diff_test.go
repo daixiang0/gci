@@ -61,8 +61,8 @@ import (
 					{
 						Pos: 133,
 						End: 205,
-						NewText: []byte(` 	"github.com/daixiang0/gci/pkg/gci"
- 	"github.com/daixiang0/gci/pkg/io"
+						NewText: []byte(`	"github.com/daixiang0/gci/pkg/gci"
+	"github.com/daixiang0/gci/pkg/io"
 `,
 						),
 					},
@@ -93,16 +93,16 @@ import (
 					{
 						Pos: 35,
 						End: 59,
-						NewText: []byte(` 	"go/token"
- 	"strings"
+						NewText: []byte(`	"go/token"
+	"strings"
 `,
 						),
 					},
 					{
 						Pos: 134,
 						End: 206,
-						NewText: []byte(` 	"github.com/daixiang0/gci/pkg/gci"
- 	"github.com/daixiang0/gci/pkg/io"
+						NewText: []byte(`	"github.com/daixiang0/gci/pkg/gci"
+	"github.com/daixiang0/gci/pkg/io"
 `,
 						),
 					},
