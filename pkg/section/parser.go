@@ -22,7 +22,7 @@ func Parse(data []string) (SectionList, error) {
 		if s == "default" {
 			list = append(list, Default{})
 		} else if s == "standard" {
-			list = append(list, NewStandard())
+			list = append(list, Standard{})
 		} else if s == "newline" {
 			list = append(list, NewLine{})
 		} else if strings.HasPrefix(s, "prefix(") && len(d) > 8 {

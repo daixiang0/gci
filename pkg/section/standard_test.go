@@ -7,15 +7,14 @@ import (
 )
 
 func TestStandardPackageSpecificity(t *testing.T) {
-	standard := NewStandard()
 	testCases := []specificityTestData{
-		{"context", standard, specificity.StandardMatch{}},
-		{"contexts", standard, specificity.MisMatch{}},
-		{"crypto", standard, specificity.StandardMatch{}},
-		{"crypto1", standard, specificity.MisMatch{}},
-		{"crypto/ae", standard, specificity.MisMatch{}},
-		{"crypto/aes", standard, specificity.StandardMatch{}},
-		{"crypto/aes2", standard, specificity.MisMatch{}},
+		{"context", Standard{}, specificity.StandardMatch{}},
+		{"contexts", Standard{}, specificity.MisMatch{}},
+		{"crypto", Standard{}, specificity.StandardMatch{}},
+		{"crypto1", Standard{}, specificity.MisMatch{}},
+		{"crypto/ae", Standard{}, specificity.MisMatch{}},
+		{"crypto/aes", Standard{}, specificity.StandardMatch{}},
+		{"crypto/aes2", Standard{}, specificity.MisMatch{}},
 	}
 	testSpecificity(t, testCases)
 }

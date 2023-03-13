@@ -1,6 +1,6 @@
 module github.com/daixiang0/gci
 
-go 1.20
+go 1.18
 
 require (
 	github.com/hexops/gotextdiff v1.0.3
