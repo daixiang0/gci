@@ -1,8 +1,8 @@
-.PHONY: clean test build
+.PHONY: clean generate test build
 
 BIN_OUTPUT := $(if $(filter $(shell go env GOOS), windows), dist/gci.exe, dist/gci)
 
-default: clean test build
+default: clean generate test build
 
 clean:
 	@echo BIN_OUTPUT: ${BIN_OUTPUT}
@@ -13,3 +13,6 @@ build: clean
 
 test: clean
 	@go test -v -count=1 -cover ./...
+
+generate:
+	@go generate ./...
