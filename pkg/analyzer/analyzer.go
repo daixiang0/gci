@@ -43,7 +43,7 @@ func init() {
 
 var Analyzer = &analysis.Analyzer{
 	Name: "gci",
-	Doc:  "A tool that control golang package import order and make it always deterministic.",
+	Doc:  "A tool that control Go package import order and make it always deterministic.",
 	Run:  runAnalysis,
 }
 
