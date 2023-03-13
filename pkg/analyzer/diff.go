@@ -71,8 +71,8 @@ func GetSuggestedFix(file *token.File, a, b []byte) (*analysis.SuggestedFix, err
 			buf.WriteRune('\n')
 		case '-':
 			// just skip
-		default:
-			buf.WriteString(line)
+		case ' ':
+			buf.WriteString(line[1:])
 			buf.WriteRune('\n')
 		}
 	}
