@@ -1,6 +1,6 @@
 # GCI
 
-GCI, a tool that controls golang package import order and makes it always deterministic.
+GCI, a tool that controls Go package import order and makes it always deterministic.
 
 The desired output format is highly configurable and allows for more custom formatting than `goimport` does.
 
@@ -28,7 +28,7 @@ import (
 ```
 
 GCI splits all import blocks into different sections, now support five section type:
-- standard: Golang official imports, like "fmt"
+- standard: Go official imports, like "fmt"
 - custom: Custom section, use full and the longest match (match full string first, if multiple matches, use the longest one)
 - default: All rest import blocks
 - blank: Put blank imports together in a separate group
@@ -80,7 +80,7 @@ Flags:
   -d, --debug             Enables debug output from the formatter
   -h, --help              help for write
   -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
-                          standard - standard section that Golang provides officially, like "fmt"
+                          standard - standard section that Go provides officially, like "fmt"
                           Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                           default - default section, contains all rest imports
                           blank - blank section, contains all blank imports.
@@ -102,7 +102,7 @@ Flags:
   -d, --debug             Enables debug output from the formatter
   -h, --help              help for write
   -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
-                          standard - standard section that Golang provides officially, like "fmt"
+                          standard - standard section that Go provides officially, like "fmt"
                           Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                           default - default section, contains all rest imports
                           blank - blank section, contains all blank imports.
@@ -122,7 +122,7 @@ Flags:
   -d, --debug             Enables debug output from the formatter
   -h, --help              help for write
   -s, --section strings   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
-                          standard - standard section that Golang provides officially, like "fmt"
+                          standard - standard section that Go provides officially, like "fmt"
                           Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                           default - default section, contains all rest imports
                           blank - blank section, contains all blank imports.
