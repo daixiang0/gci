@@ -42,6 +42,7 @@ func NewExecutor(version string) *Executor {
 	e.initDiff()
 	e.initPrint()
 	e.initWrite()
+	e.initList()
 	return &e
 }
 
