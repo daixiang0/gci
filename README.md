@@ -66,6 +66,13 @@ Now GCI provides two command line methods, mainly for backward compatibility.
 ### New style
 GCI supports three modes of operation
 
+> **Note**
+> 
+> Since v0.10.0, the `-s` and `--section` flag can only be used multiple times to specify multiple sections.  
+> For example, you could use `-s standard,default` before, but now you must use `-s standard -s default`.  
+> This breaking change makes it possible for the project to support specifying multiple custom prefixes. (Please see below.)  
+
+
 ```shell
 $ gci print -h
 Print outputs the formatted file. If you want to apply the changes to a file use write instead!
