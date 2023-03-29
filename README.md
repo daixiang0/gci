@@ -118,6 +118,27 @@ Flags:
       --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
 ```
 
+
+```shell
+$ gci list -h
+Prints the filenames that need to be formatted. If you want to show the diff use diff instead, and if you want to apply the changes use write instead
+
+Usage:
+  gci list path... [flags]
+
+Flags:
+      --custom-order          Enable custom order of sections
+  -d, --debug                 Enables debug output from the formatter
+  -h, --help                  help for list
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+                              standard - standard section that Go provides officially, like "fmt"
+                              Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
+                              default - default section, contains all rest imports
+                              blank - blank section, contains all blank imports.
+                              dot - dot section, contains all dot imports. (default [standard,default])
+      --skip-generated        Skip generated files
+```
+
 ```shell
 $ gci diff -h
 Diff prints a patch in the style of the diff tool that contains the required changes to the file to make it adhere to the specified formatting.

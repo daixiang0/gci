@@ -49,6 +49,16 @@ func WriteFormattedFiles(paths []string, cfg config.Config) error {
 	})
 }
 
+func ListUnFormattedFiles(paths []string, cfg config.Config) error {
+	return processGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
+		if bytes.Equal(unmodifiedFile, formattedFile) {
+			return nil
+		}
+		fmt.Println(filePath)
+		return nil
+	})
+}
+
 func DiffFormattedFiles(paths []string, cfg config.Config) error {
 	return processStdInAndGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
 		fileURI := span.URIFromPath(filePath)
