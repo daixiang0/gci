@@ -5,6 +5,7 @@ package section
 var standardPackages = map[string]struct{}{
 	"archive/tar":          {},
 	"archive/zip":          {},
+	"arena":                {},
 	"bufio":                {},
 	"bytes":                {},
 	"compress/bzip2":       {},
