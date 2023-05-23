@@ -1,10 +1,11 @@
 package section
 
-// Code generated based on go1.20.1. DO NOT EDIT.
+// Code generated based on go1.20.1 X:arenas. DO NOT EDIT.
 
 var standardPackages = map[string]struct{}{
 	"archive/tar":          {},
 	"archive/zip":          {},
+	"arena":                {},
 	"bufio":                {},
 	"bytes":                {},
 	"compress/bzip2":       {},
