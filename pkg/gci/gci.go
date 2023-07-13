@@ -134,6 +134,9 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	imports, headEnd, tailStart, cStart, cEnd, err := parse.ParseFile(src, file.Path())
 	if err != nil {
 		if errors.Is(err, parse.NoImportError{}) {
+			if cfg.FormatAlways {
+				return GoFormat(src)
+			}
 			return src, src, nil
 		}
 		return nil, nil, err
@@ -203,6 +206,15 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	}
 	log.L().Debug(fmt.Sprintf("raw:\n%s", dist))
 	dist, err = goFormat.Source(dist)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return src, dist, nil
+}
+
+func GoFormat(src []byte) ([]byte, []byte, error) {
+	dist, err := goFormat.Source(src)
 	if err != nil {
 		return nil, nil, err
 	}

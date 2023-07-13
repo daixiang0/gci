@@ -24,6 +24,7 @@ type BoolConfig struct {
 	Debug            bool `yaml:"-"`
 	SkipGenerated    bool `yaml:"skipGenerated"`
 	CustomOrder      bool `yaml:"customOrder"`
+	FormatAlways     bool `yaml:"formatAlways"`
 }
 
 type Config struct {
