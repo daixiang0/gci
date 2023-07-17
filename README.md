@@ -17,7 +17,7 @@ The isolated comment blocks like below:
 
 ```
 import (
-  "fmt" 
+  "fmt"
   // this line is isolated comment
 
   // those lines belong to one
@@ -67,10 +67,10 @@ Now GCI provides two command line methods, mainly for backward compatibility.
 GCI supports three modes of operation
 
 > **Note**
-> 
-> Since v0.10.0, the `-s` and `--section` flag can only be used multiple times to specify multiple sections.  
-> For example, you could use `-s standard,default` before, but now you must use `-s standard -s default`.  
-> This breaking change makes it possible for the project to support specifying multiple custom prefixes. (Please see below.)  
+>
+> Since v0.10.0, the `-s` and `--section` flag can only be used multiple times to specify multiple sections.
+> For example, you could use `-s standard,default` before, but now you must use `-s standard -s default`.
+> This breaking change makes it possible for the project to support specifying multiple custom prefixes. (Please see below.)
 
 
 ```shell
@@ -93,6 +93,7 @@ Flags:
                           blank - blank section, contains all blank imports.
       --skip-generated    Skip generated files
       --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
+      --format-always     Format the file even if no imports are defined. By default, formatting doesn't run when there are <= 1 imports.
 ```
 
 ```shell
@@ -188,9 +189,9 @@ Run `gci write -s standard -s default -s "prefix(github.com/daixiang0/gci)" main
 package main
 import (
   "golang.org/x/tools"
-  
+
   "fmt"
-  
+
   "github.com/daixiang0/gci"
 )
 ```
