@@ -47,7 +47,7 @@ func (e *Executor) newGciCommand(use, short, long string, aliases []string, stdI
 	e.rootCmd.AddCommand(&cmd)
 
 	debug = cmd.Flags().BoolP("debug", "d", false, "Enables debug output from the formatter")
-	formatAlways = cmd.Flags().Bool("format-always", false, "Format the file even if no imports are defined.")
+	formatAlways = cmd.Flags().Bool("format-always", false, "Format the file even if no imports blocks are defined. The default value is false.")
 
 	sectionHelp := `Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
 standard - standard section that Go provides officially, like "fmt"

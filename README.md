@@ -93,7 +93,7 @@ Flags:
                           blank - blank section, contains all blank imports.
       --skip-generated    Skip generated files
       --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
-      --format-always     Format the file even if no imports are defined. By default, formatting doesn't run when there are <= 1 imports.
+      --format-always     Format the file even if no imports blocks are defined. The default value is false.
 ```
 
 ```shell
@@ -158,6 +158,7 @@ Flags:
                           dot - dot section, contains all dot imports.
       --skip-generated    Skip generated files
       --custom-order      Enable custom order of sections. If specified, make the section order the same as your configuration order. The default order is standard > default > custom > blank > dot.
+      --format-always     Format the file even if no imports blocks are defined. The default value is false.
 ```
 
 ### Old style
