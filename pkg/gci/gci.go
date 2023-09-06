@@ -201,6 +201,10 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	for _, s := range slices {
 		i += copy(dist[i:], s)
 	}
+
+	// remove ^M(\r\n) from Win to Unix
+	dist = bytes.ReplaceAll(dist, []byte{utils.WinLinebreak}, []byte{utils.Linebreak})
+
 	log.L().Debug(fmt.Sprintf("raw:\n%s", dist))
 	dist, err = goFormat.Source(dist)
 	if err != nil {
