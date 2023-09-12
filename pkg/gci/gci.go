@@ -127,21 +127,23 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 		return nil, nil, err
 	}
 
-	if cfg.SkipGenerated && parse.IsGeneratedFileByComment(string(src)) {
-		return src, src, nil
+	cleanedSrc := bytes.ReplaceAll(src, []byte(utils.WinLinebreak), []byte{utils.Linebreak})
+
+	if cfg.SkipGenerated && parse.IsGeneratedFileByComment(string(cleanedSrc)) {
+		return src, cleanedSrc, nil
 	}
 
-	imports, headEnd, tailStart, cStart, cEnd, err := parse.ParseFile(src, file.Path())
+	imports, headEnd, tailStart, cStart, cEnd, err := parse.ParseFile(cleanedSrc, file.Path())
 	if err != nil {
 		if errors.Is(err, parse.NoImportError{}) {
-			return src, src, nil
+			return src, cleanedSrc, nil
 		}
 		return nil, nil, err
 	}
 
 	// do not do format if only one import
 	if len(imports) <= 1 {
-		return src, src, nil
+		return src, cleanedSrc, nil
 	}
 
 	result, err := format.Format(imports, &cfg)
@@ -161,19 +163,19 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 			}
 			for _, d := range result[s.String()] {
 				AddIndent(&body, &firstWithIndex)
-				body = append(body, src[d.Start:d.End]...)
+				body = append(body, cleanedSrc[d.Start:d.End]...)
 			}
 		}
 	}
 
 	head := make([]byte, headEnd)
-	copy(head, src[:headEnd])
-	tail := make([]byte, len(src)-tailStart)
-	copy(tail, src[tailStart:])
+	copy(head, cleanedSrc[:headEnd])
+	tail := make([]byte, len(cleanedSrc)-tailStart)
+	copy(tail, cleanedSrc[tailStart:])
 
 	// ensure C
 	if cStart != 0 {
-		head = append(head, src[cStart:cEnd]...)
+		head = append(head, cleanedSrc[cStart:cEnd]...)
 		head = append(head, utils.Linebreak)
 	}
 
@@ -201,9 +203,6 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 	for _, s := range slices {
 		i += copy(dist[i:], s)
 	}
-
-	// remove ^M(\r\n) from Win to Unix
-	dist = bytes.ReplaceAll(dist, []byte{utils.WinLinebreak}, []byte{utils.Linebreak})
 
 	log.L().Debug(fmt.Sprintf("raw:\n%s", dist))
 	dist, err = goFormat.Source(dist)

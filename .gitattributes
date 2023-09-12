@@ -1,0 +1,5 @@
+# test inputs should be platform depend
+*.in.go text eol=auto
+
+# formatted test results should always end on \n instead of \r\n
+*.out.go text eol=lf
