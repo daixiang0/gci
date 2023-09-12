@@ -1,7 +1,7 @@
 package config
 
 import (
-	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 
@@ -75,7 +75,7 @@ func (g YamlConfig) Parse() (*Config, error) {
 
 func InitializeGciConfigFromYAML(filePath string) (*Config, error) {
 	config := YamlConfig{}
-	yamlData, err := ioutil.ReadFile(filePath)
+	yamlData, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}

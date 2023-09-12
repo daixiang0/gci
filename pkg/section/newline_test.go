@@ -11,6 +11,7 @@ func TestNewLineSpecificity(t *testing.T) {
 		{`""`, NewLine{}, specificity.MisMatch{}},
 		{`"x"`, NewLine{}, specificity.MisMatch{}},
 		{`"\n"`, NewLine{}, specificity.MisMatch{}},
+		{`"\r\n"`, NewLine{}, specificity.MisMatch{}},
 	}
 	testSpecificity(t, testCases)
 }
