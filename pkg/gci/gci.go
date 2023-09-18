@@ -127,11 +127,17 @@ func LoadFormatGoFile(file io.FileObj, cfg config.Config) (src, dist []byte, err
 		return nil, nil, err
 	}
 
+	return LoadFormat(src, file.Path(), cfg)
+}
+
+func LoadFormat(in []byte, path string, cfg config.Config) (src, dist []byte, err error) {
+	src = in
+
 	if cfg.SkipGenerated && parse.IsGeneratedFileByComment(string(src)) {
 		return src, src, nil
 	}
 
-	imports, headEnd, tailStart, cStart, cEnd, err := parse.ParseFile(src, file.Path())
+	imports, headEnd, tailStart, cStart, cEnd, err := parse.ParseFile(src, path)
 	if err != nil {
 		if errors.Is(err, parse.NoImportError{}) {
 			return src, src, nil
