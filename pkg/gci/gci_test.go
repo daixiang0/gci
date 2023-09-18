@@ -37,5 +37,4 @@ func TestRun(t *testing.T) {
 			assert.Equal(t, testCases[i].out, string(new))
 		})
 	}
-
 }

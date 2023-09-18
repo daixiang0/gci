@@ -35,7 +35,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"blank-format",
 
@@ -61,7 +62,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"cgo-block",
 
@@ -84,7 +86,8 @@ import (
 	*/
 	"C"
 )
-`},
+`,
+	},
 	{
 		"cgo-block-after-import",
 
@@ -120,7 +123,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"cgo-block-before-import",
 
@@ -157,7 +161,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"cgo-block-mixed",
 
@@ -176,7 +181,8 @@ import (
 	/* #include "types.h"
 	*/"C"
 )
-`},
+`,
+	},
 	{
 		"cgo-block-mixed-with-content",
 
@@ -195,7 +201,8 @@ import (
 	/* #include "types.h"
 	#include "other.h" */"C"
 )
-`},
+`,
+	},
 	{
 		"cgo-block-prefix",
 
@@ -212,7 +219,8 @@ import (
 import (
 	/* #include "types.h" */ "C"
 )
-`},
+`,
+	},
 	{
 		"cgo-block-single-line",
 
@@ -231,7 +239,8 @@ import (
 	/* #include "types.h" */
 	"C"
 )
-`},
+`,
+	},
 	{
 		"cgo-line",
 
@@ -250,7 +259,8 @@ import (
 	// #include "types.h"
 	"C"
 )
-`},
+`,
+	},
 	{
 		"cgo-multiline",
 
@@ -271,7 +281,8 @@ import (
 	// #include "other.h"
 	"C"
 )
-`},
+`,
+	},
 	{
 		"cgo-single",
 
@@ -304,7 +315,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"comment",
 
@@ -321,7 +333,8 @@ import (
 	//Do not forget to run Gci
 	"fmt"
 )
-`},
+`,
+	},
 	{
 		"comment-before-import",
 
@@ -346,7 +359,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"comment-in-the-tail",
 
@@ -382,7 +396,8 @@ import (
 type test int
 
 // test
-`},
+`,
+	},
 	{
 		"comment-top",
 
@@ -403,7 +418,8 @@ import (
 	"fmt"
 	"os" // https://pkg.go.dev/os
 )
-`},
+`,
+	},
 	{
 		"comment-whithout-whitespace",
 
@@ -420,7 +436,8 @@ import (
 import (
 	"context"// no separating whitespace here //nolint:confusion
 )
-`},
+`,
+	},
 	{
 		"comment-with-slashslash",
 
@@ -437,7 +454,8 @@ import (
 import (
 	"fmt" // https://pkg.go.dev/fmt
 )
-`},
+`,
+	},
 	{
 		"custom-order",
 
@@ -466,7 +484,8 @@ import (
 
 	"fmt"
 )
-`},
+`,
+	},
 	{
 		"default-order",
 
@@ -494,7 +513,8 @@ import (
 
 	"github.com/daixiang0/a"
 )
-`},
+`,
+	},
 	{
 		"dot-and-blank",
 
@@ -538,7 +558,8 @@ import (
 	. "github.com/daixiang0/gci/dot"
 	. "github.com/golang/dot"
 )
-`},
+`,
+	},
 	{
 		"duplicate-imports",
 
@@ -568,7 +589,8 @@ import (
 	"github.com/daixiang0/gci"
 	a "github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"grouped-multiple-custom",
 
@@ -600,7 +622,8 @@ import (
 	"github.com/daixiang0/gci/subtest"
 	"gitlab.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"leading-comment",
 
@@ -619,7 +642,8 @@ import (
 	// foo
 	"fmt"
 )
-`},
+`,
+	},
 	{
 		"linebreak",
 
@@ -648,7 +672,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"linebreak-no-custom",
 
@@ -673,7 +698,8 @@ import (
 
 	g "github.com/golang"
 )
-`},
+`,
+	},
 	{
 		"mismatch-section",
 
@@ -702,7 +728,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"multiple-custom",
 
@@ -738,7 +765,8 @@ import (
 
 	"github.com/daixiang0/gci/subtest"
 )
-`},
+`,
+	},
 	{
 		"multiple-imports",
 
@@ -777,7 +805,8 @@ import (
 // main
 func main() {
 }
-`},
+`,
+	},
 	{
 		"multiple-line-comment",
 
@@ -813,7 +842,8 @@ import (
 	"github.com/local/dlib/dexec"
 	"golang.org/x/sys/unix"
 )
-`},
+`,
+	},
 	{
 		"nochar-after-import",
 
@@ -830,7 +860,8 @@ import (
 import (
 	"fmt"
 )
-`},
+`,
+	},
 	{
 		"no-format",
 
@@ -855,7 +886,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"nolint",
 
@@ -880,7 +912,8 @@ import (
 
 	_ "github.com/daixiang0/gci" //nolint:depguard
 )
-`},
+`,
+	},
 	{
 		"number-in-alias",
 
@@ -905,7 +938,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"one-import",
 
@@ -926,7 +960,8 @@ import (
 
 func main() {
 }
-`},
+`,
+	},
 	{
 		"one-import-one-line",
 
@@ -945,7 +980,8 @@ import "fmt"
 
 func main() {
 }
-`},
+`,
+	},
 	{
 		"one-line-import-after-import",
 
@@ -974,7 +1010,8 @@ import (
 
 	"github.com/daixiang0/test"
 )
-`},
+`,
+	},
 	{
 		"same-prefix-custom",
 
@@ -1006,7 +1043,8 @@ import (
 
 	"github.com/daixiang0/gci/subtest"
 )
-`},
+`,
+	},
 	{
 		"simple-case",
 
@@ -1031,7 +1069,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"whitespace-test",
 
@@ -1054,7 +1093,8 @@ import (
 
 	alias "github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"with-above-comment-and-alias",
 
@@ -1079,7 +1119,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"with-comment-and-alias",
 
@@ -1102,7 +1143,8 @@ import (
 
 	"github.com/daixiang0/gci"
 )
-`},
+`,
+	},
 	{
 		"same-prefix-custom",
 
@@ -1134,7 +1176,8 @@ import (
 
 	"github.com/daixiang0/gci/subtest"
 )
-`},
+`,
+	},
 	{
 		"same-prefix-custom",
 
@@ -1166,7 +1209,8 @@ import (
 
 	"github.com/daixiang0/gci/subtest"
 )
-`},
+`,
+	},
 	{
 		"blank-in-config",
 
@@ -1196,5 +1240,6 @@ import (
 	"github.com/daixiang0/gci"
 	"github.com/daixiang0/gci/subtest"
 )
-`},
+`,
+	},
 }
