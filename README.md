@@ -34,9 +34,10 @@ GCI splits all import blocks into different sections, now support five section t
 - default: All rest import blocks
 - blank: Put blank imports together in a separate group
 - dot: Put dot imports together in a separate group
+- alias: Put alias imports together in a separate group
 
-The priority is standard > default > custom > blank > dot, all sections sort alphabetically inside.
-By default, blank and dot sections are not used and the corresponding lines end up in the other groups.
+The priority is standard > default > custom > blank > dot > alias, all sections sort alphabetically inside.
+By default, blank , dot and alias sections are not used and the corresponding lines end up in the other groups.
 
 All import blocks use one TAB(`\t`) as Indent.
 
@@ -88,12 +89,13 @@ Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
   -h, --help                  help for print
-  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
                               Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                               default - default section, contains all rest imports
                               blank - blank section, contains all blank imports.
                               dot - dot section, contains all dot imports. (default [standard,default])
+                              alias - alias section, contains all alias imports.
       --skip-generated        Skip generated files
       --skip-vendor           Skip files inside vendor directory
 ```
@@ -112,12 +114,13 @@ Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
   -h, --help                  help for write
-  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
                               Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                               default - default section, contains all rest imports
                               blank - blank section, contains all blank imports.
                               dot - dot section, contains all dot imports. (default [standard,default])
+                              alias - alias section, contains all alias imports.
       --skip-generated        Skip generated files
       --skip-vendor           Skip files inside vendor directory
 ```
@@ -133,11 +136,12 @@ Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
   -h, --help                  help for list
-  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
                               Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                               default - default section, contains all rest imports
                               blank - blank section, contains all blank imports.
+                              alias - alias section, contains all alias imports.
                               dot - dot section, contains all dot imports. (default [standard,default])
       --skip-generated        Skip generated files
       --skip-vendor           Skip files inside vendor directory
@@ -154,11 +158,12 @@ Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
   -h, --help                  help for diff
-  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot. The default value is [standard,default].
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
                               Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                               default - default section, contains all rest imports
                               blank - blank section, contains all blank imports.
+                              alias - alias section, contains all alias imports.
                               dot - dot section, contains all dot imports. (default [standard,default])
       --skip-generated        Skip generated files
       --skip-vendor           Skip files inside vendor directory
@@ -281,6 +286,38 @@ import (
 
   . "github.com/daixiang0/gci/dot"
   . "github.com/golang/dot"
+)
+```
+
+### with alias grouping enabled
+
+```go
+package main
+
+import (
+	testing "github.com/daixiang0/test"
+	"fmt"
+
+	g "github.com/golang"
+
+	"github.com/daixiang0/gci"
+	"github.com/daixiang0/gci/subtest"
+)
+```
+
+to
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/daixiang0/gci"
+	"github.com/daixiang0/gci/subtest"
+
+	testing "github.com/daixiang0/test"
+	g "github.com/golang"
 )
 ```
 
