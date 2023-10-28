@@ -10,12 +10,13 @@ import (
 )
 
 var defaultOrder = map[string]int{
-	section.StandardType: 0,
-	section.DefaultType:  1,
-	section.CustomType:   2,
-	section.BlankType:    3,
-	section.DotType:      4,
-	section.AliasType:    5,
+	section.StandardType:    0,
+	section.DefaultType:     1,
+	section.CustomType:      2,
+	section.BlankType:       3,
+	section.DotType:         4,
+	section.AliasType:       5,
+	section.LocalModuleType: 6,
 }
 
 type BoolConfig struct {
@@ -48,6 +49,9 @@ func (g YamlConfig) Parse() (*Config, error) {
 	}
 	if sections == nil {
 		sections = section.DefaultSections()
+	}
+	if err := configureSections(sections); err != nil {
+		return nil, err
 	}
 
 	// if default order sorted sections
@@ -87,4 +91,16 @@ func ParseConfig(in string) (*Config, error) {
 	}
 
 	return gciCfg, nil
+}
+
+func configureSections(sections section.SectionList) error {
+	for _, sec := range sections {
+		switch s := sec.(type) {
+		case *section.LocalModule:
+			if err := s.Configure(); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

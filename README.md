@@ -27,7 +27,7 @@ import (
 )
 ```
 
-GCI splits all import blocks into different sections, now support five section type:
+GCI splits all import blocks into different sections, now support six section type:
 
 - standard: Go official imports, like "fmt"
 - custom: Custom section, use full and the longest match (match full string first, if multiple matches, use the longest one)
@@ -35,8 +35,9 @@ GCI splits all import blocks into different sections, now support five section t
 - blank: Put blank imports together in a separate group
 - dot: Put dot imports together in a separate group
 - alias: Put alias imports together in a separate group
+- localmodule: Put imports from local packages in a separate group
 
-The priority is standard > default > custom > blank > dot > alias, all sections sort alphabetically inside.
+The priority is standard > default > custom > blank > dot > alias > localmodule, all sections sort alphabetically inside.
 By default, blank , dot and alias sections are not used and the corresponding lines end up in the other groups.
 
 All import blocks use one TAB(`\t`) as Indent.
@@ -46,6 +47,17 @@ Since v0.9.0, GCI always puts C import block as the first.
 **Note**:
 
 `nolint` is hard to handle at section level, GCI will consider it as a single comment.
+
+### LocalModule
+
+Local module detection is done via listing packages from *the directory where
+`gci` is invoked* and reading the modules off these. This means:
+
+  - This mode works when `gci` is invoked from a module root (i.e. directory
+    containing `go.mod`)
+  - This mode doesn't work with a multi-module setup, i.e. when `gci` is invoked
+    from a directory containing `go.work` (though it would work if invoked from
+    within one of the modules in the workspace)
 
 ## Installation
 
@@ -318,6 +330,32 @@ import (
 
 	testing "github.com/daixiang0/test"
 	g "github.com/golang"
+)
+```
+
+### with localmodule grouping enabled
+
+Assuming this is run on the root of this repo (i.e. where
+`github.com/daixiang0/gci` is a local module)
+
+```go
+package main
+
+import (
+	"os"
+	"github.com/daixiang0/gci/cmd/gci"
+)
+```
+
+to
+
+```go
+package main
+
+import (
+	"os"
+
+	"github.com/daixiang0/gci/cmd/gci"
 )
 ```
 
