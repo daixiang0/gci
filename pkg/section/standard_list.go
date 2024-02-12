@@ -106,6 +106,7 @@ var standardPackages = map[string]struct{}{
 	"math/bits":            {},
 	"math/cmplx":           {},
 	"math/rand":            {},
+	"math/rand/v2":         {},
 	"mime":                 {},
 	"mime/multipart":       {},
 	"mime/quotedprintable": {},
