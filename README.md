@@ -50,8 +50,8 @@ Since v0.9.0, GCI always puts C import block as the first.
 
 ### LocalModule
 
-Local module detection is done via listing packages from *the directory where
-`gci` is invoked* and reading the modules off these. This means:
+Local module detection is done via reading the module name from the `go.mod`
+file in *the directory where `gci` is invoked*. This means:
 
   - This mode works when `gci` is invoked from a module root (i.e. directory
     containing `go.mod`)

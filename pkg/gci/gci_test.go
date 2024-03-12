@@ -21,10 +21,6 @@ func init() {
 }
 
 func TestRun(t *testing.T) {
-	// if runtime.GOOS == "windows" {
-	// 	t.Skip("Skipping test on Windows")
-	// }
-
 	for i := range testCases {
 		t.Run(fmt.Sprintf("run case: %s", testCases[i].name), func(t *testing.T) {
 			config, err := config.ParseConfig(testCases[i].config)
@@ -56,35 +52,65 @@ func chdir(t *testing.T, dir string) {
 func readConfig(t *testing.T, configPath string) *config.Config {
 	rawConfig, err := os.ReadFile(configPath)
 	require.NoError(t, err)
-	config, err := config.ParseConfig(string(rawConfig))
+	cfg, err := config.ParseConfig(string(rawConfig))
 	require.NoError(t, err)
 
-	return config
+	return cfg
 }
 
 func TestRunWithLocalModule(t *testing.T) {
-	moduleDir := filepath.Join("testdata", "module")
-	// files with a corresponding '*.out.go' file containing the expected
-	// result of formatting
-	testedFiles := []string{
-		"main.go",
-		filepath.Join("internal", "foo", "lib.go"),
+	tests := []struct {
+		name      string
+		moduleDir string
+		// files with a corresponding '*.out.go' file containing the expected
+		// result of formatting
+		testedFiles []string
+	}{
+		{
+			name:      `default module test case`,
+			moduleDir: filepath.Join("testdata", "module"),
+			testedFiles: []string{
+				"main.go",
+				filepath.Join("internal", "foo", "lib.go"),
+			},
+		},
+		{
+			name:      `canonical module without go sources in root dir`,
+			moduleDir: filepath.Join("testdata", "module_canonical"),
+			testedFiles: []string{
+				filepath.Join("cmd", "client", "main.go"),
+				filepath.Join("cmd", "server", "main.go"),
+				filepath.Join("internal", "foo", "lib.go"),
+			},
+		},
+		{
+			name:      `non-canonical module without go sources in root dir`,
+			moduleDir: filepath.Join("testdata", "module_noncanonical"),
+			testedFiles: []string{
+				filepath.Join("cmd", "client", "main.go"),
+				filepath.Join("cmd", "server", "main.go"),
+				filepath.Join("internal", "foo", "lib.go"),
+			},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// run subtests for expected module loading behaviour
+			chdir(t, tt.moduleDir)
+			cfg := readConfig(t, "config.yaml")
 
-	// run subtests for expected module loading behaviour
-	chdir(t, moduleDir)
-	cfg := readConfig(t, "config.yaml")
+			for _, path := range tt.testedFiles {
+				t.Run(path, func(t *testing.T) {
+					// *.go -> *.out.go
+					expected, err := os.ReadFile(strings.TrimSuffix(path, ".go") + ".out.go")
+					require.NoError(t, err)
 
-	for _, path := range testedFiles {
-		t.Run(path, func(t *testing.T) {
-			// *.go -> *.out.go
-			expected, err := os.ReadFile(strings.TrimSuffix(path, ".go") + ".out.go")
-			require.NoError(t, err)
+					_, got, err := LoadFormatGoFile(io.File{path}, *cfg)
 
-			_, got, err := LoadFormatGoFile(io.File{path}, *cfg)
-
-			require.NoError(t, err)
-			require.Equal(t, string(expected), string(got))
+					require.NoError(t, err)
+					require.Equal(t, string(expected), string(got))
+				})
+			}
 		})
 	}
 }
@@ -96,18 +122,5 @@ func TestRunWithLocalModuleWithPackageLoadFailure(t *testing.T) {
 
 	chdir(t, dir)
 	_, err := config.ParseConfig(configContent)
-	require.ErrorContains(t, err, "failed to load local modules: ")
-}
-
-func TestRunWithLocalModuleWithModuleLookupError(t *testing.T) {
-	dir := t.TempDir()
-	// error from trying to list packages under module with no go files
-	configContent := "sections:\n  - LocalModule\n"
-	goModContent := "module example.com/foo\n"
-	require.NoError(t, os.WriteFile(filepath.Join(dir, "go.mod"), []byte(goModContent), 0o644))
-
-	chdir(t, dir)
-	_, err := config.ParseConfig(configContent)
-	require.ErrorContains(t, err, "error reading local packages: ")
-	require.ErrorContains(t, err, dir)
+	require.ErrorContains(t, err, "go.mod: open go.mod:")
 }
