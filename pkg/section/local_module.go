@@ -2,9 +2,10 @@ package section
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
-	"golang.org/x/tools/go/packages"
+	"golang.org/x/mod/modfile"
 
 	"github.com/daixiang0/gci/pkg/parse"
 	"github.com/daixiang0/gci/pkg/specificity"
@@ -13,15 +14,12 @@ import (
 const LocalModuleType = "localmodule"
 
 type LocalModule struct {
-	Paths []string
+	Path string
 }
 
 func (m *LocalModule) MatchSpecificity(spec *parse.GciImports) specificity.MatchSpecificity {
-	for _, modPath := range m.Paths {
-		// also check path etc.
-		if strings.HasPrefix(spec.Path, modPath) {
-			return specificity.LocalModule{}
-		}
+	if strings.HasPrefix(spec.Path, m.Path) {
+		return specificity.LocalModule{}
 	}
 
 	return specificity.MisMatch{}
@@ -38,40 +36,21 @@ func (m *LocalModule) Type() string {
 // Configure configures the module section by finding the module
 // for the current path
 func (m *LocalModule) Configure() error {
-	modPaths, err := findLocalModules()
+	modPath, err := findLocalModule()
 	if err != nil {
-		return err
+		return fmt.Errorf("finding local modules for `localModule` configuration: %w", err)
 	}
-	m.Paths = modPaths
+
+	m.Path = modPath
+
 	return nil
 }
 
-func findLocalModules() ([]string, error) {
-	packages, err := packages.Load(
-		// find the package in the current dir and load its module
-		// NeedFiles so there is some more info in package errors
-		&packages.Config{Mode: packages.NeedModule | packages.NeedFiles},
-		".",
-	)
+func findLocalModule() (string, error) {
+	b, err := os.ReadFile("go.mod")
 	if err != nil {
-		return nil, fmt.Errorf("failed to load local modules: %v", err)
+		return "", fmt.Errorf("reading go.mod: %w", err)
 	}
 
-	uniqueModules := make(map[string]struct{})
-
-	for _, pkg := range packages {
-		if len(pkg.Errors) != 0 {
-			return nil, fmt.Errorf("error reading local packages: %v", pkg.Errors)
-		}
-		if pkg.Module != nil {
-			uniqueModules[pkg.Module.Path] = struct{}{}
-		}
-	}
-
-	modPaths := make([]string, 0, len(uniqueModules))
-	for mod := range uniqueModules {
-		modPaths = append(modPaths, mod)
-	}
-
-	return modPaths, nil
+	return modfile.ModulePath(b), nil
 }

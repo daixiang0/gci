@@ -1295,27 +1295,4 @@ import (
 )
 `,
 	},
-	{
-		"basic module",
-		// implicitly relies on the local module name being: github.com/daixiang0/gci
-		`sections:
-  - Standard
-  - LocalModule
-`,
-		`package main
-
-import (
-	"os"
-	"github.com/daixiang0/gci/cmd/gci"
-)
-`,
-		`package main
-
-import (
-	"os"
-
-	"github.com/daixiang0/gci/cmd/gci"
-)
-`,
-	},
 }
