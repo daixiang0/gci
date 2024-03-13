@@ -100,6 +100,7 @@ Aliases:
 Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
+      --format-always         Format the file even if no imports blocks are defined. The default value is false.
   -h, --help                  help for print
   -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
@@ -125,6 +126,7 @@ Aliases:
 Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
+      --format-always         Format the file even if no imports blocks are defined. The default value is false.
   -h, --help                  help for write
   -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
@@ -169,6 +171,7 @@ Usage:
 Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
+      --format-always         Format the file even if no imports blocks are defined. The default value is false.
   -h, --help                  help for diff
   -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"

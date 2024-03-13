@@ -140,6 +140,9 @@ func LoadFormat(in []byte, path string, cfg config.Config) (src, dist []byte, er
 	imports, headEnd, tailStart, cStart, cEnd, err := parse.ParseFile(src, path)
 	if err != nil {
 		if errors.Is(err, parse.NoImportError{}) {
+			if cfg.FormatAlways {
+				return GoFormat(src)
+			}
 			return src, src, nil
 		}
 		return nil, nil, err
@@ -213,6 +216,15 @@ func LoadFormat(in []byte, path string, cfg config.Config) (src, dist []byte, er
 
 	log.L().Debug(fmt.Sprintf("raw:\n%s", dist))
 	dist, err = goFormat.Source(dist)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return src, dist, nil
+}
+
+func GoFormat(src []byte) ([]byte, []byte, error) {
+	dist, err := goFormat.Source(src)
 	if err != nil {
 		return nil, nil, err
 	}
