@@ -101,13 +101,14 @@ Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
   -h, --help                  help for print
-  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias > localmodule. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
                               Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                               default - default section, contains all rest imports
                               blank - blank section, contains all blank imports.
                               dot - dot section, contains all dot imports. (default [standard,default])
                               alias - alias section, contains all alias imports.
+                              localmodule: localmodule section, contains all imports from local packages
       --skip-generated        Skip generated files
       --skip-vendor           Skip files inside vendor directory
 ```
@@ -126,13 +127,14 @@ Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
   -h, --help                  help for write
-  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias > localmodule. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
                               Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                               default - default section, contains all rest imports
                               blank - blank section, contains all blank imports.
                               dot - dot section, contains all dot imports. (default [standard,default])
                               alias - alias section, contains all alias imports.
+                              localmodule: localmodule section, contains all imports from local packages
       --skip-generated        Skip generated files
       --skip-vendor           Skip files inside vendor directory
 ```
@@ -148,13 +150,14 @@ Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
   -h, --help                  help for list
-  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias > localmodule. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
                               Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                               default - default section, contains all rest imports
                               blank - blank section, contains all blank imports.
-                              alias - alias section, contains all alias imports.
                               dot - dot section, contains all dot imports. (default [standard,default])
+                              alias - alias section, contains all alias imports.
+                              localmodule: localmodule section, contains all imports from local packages
       --skip-generated        Skip generated files
       --skip-vendor           Skip files inside vendor directory
 ```
@@ -170,13 +173,14 @@ Flags:
       --custom-order          Enable custom order of sections
   -d, --debug                 Enables debug output from the formatter
   -h, --help                  help for diff
-  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias. The default value is [standard,default].
+  -s, --section stringArray   Sections define how inputs will be processed. Section names are case-insensitive and may contain parameters in (). The section order is standard > default > custom > blank > dot > alias > localmodule. The default value is [standard,default].
                               standard - standard section that Go provides officially, like "fmt"
                               Prefix(github.com/daixiang0) - custom section, groups all imports with the specified Prefix. Imports will be matched to the longest Prefix. Multiple custom prefixes may be provided, they will be rendered as distinct sections separated by newline. You can regroup multiple prefixes by separating them with comma: Prefix(github.com/daixiang0,gitlab.com/daixiang0,daixiang0)
                               default - default section, contains all rest imports
                               blank - blank section, contains all blank imports.
-                              alias - alias section, contains all alias imports.
                               dot - dot section, contains all dot imports. (default [standard,default])
+                              alias - alias section, contains all alias imports.
+                              localmodule: localmodule section, contains all imports from local packages
       --skip-generated        Skip generated files
       --skip-vendor           Skip files inside vendor directory
 ```
@@ -367,3 +371,4 @@ import (
 - Add more testcases
 - Support imports completion (please use `goimports` first then use GCI)
 - Optimize comments
+- Remove Analyzer layer and fully use analyzer syntax

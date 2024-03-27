@@ -38,6 +38,10 @@ type YamlConfig struct {
 	Cfg                     BoolConfig `yaml:",inline"`
 	SectionStrings          []string   `yaml:"sections"`
 	SectionSeparatorStrings []string   `yaml:"sectionseparators"`
+
+	// Since history issue, Golangci-lint needs Analyzer to run and GCI add an Anzlyzer layer to integrate.
+	// The ModPath param is only from analyer.go, no need to set it in all other places.
+	ModPath string `yaml:"-"`
 }
 
 func (g YamlConfig) Parse() (*Config, error) {
@@ -50,7 +54,7 @@ func (g YamlConfig) Parse() (*Config, error) {
 	if sections == nil {
 		sections = section.DefaultSections()
 	}
-	if err := configureSections(sections); err != nil {
+	if err := configureSections(sections, g.ModPath); err != nil {
 		return nil, err
 	}
 
@@ -93,11 +97,14 @@ func ParseConfig(in string) (*Config, error) {
 	return gciCfg, nil
 }
 
-func configureSections(sections section.SectionList) error {
+// configureSections now only do golang module path finding.
+// Since history issue, Golangci-lint needs Analyzer to run and GCI add an Anzlyzer layer to integrate.
+// The path param is from analyer.go, in all other places should pass empty string.
+func configureSections(sections section.SectionList, path string) error {
 	for _, sec := range sections {
 		switch s := sec.(type) {
 		case *section.LocalModule:
-			if err := s.Configure(); err != nil {
+			if err := s.Configure(path); err != nil {
 				return err
 			}
 		}

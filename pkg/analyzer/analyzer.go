@@ -5,7 +5,9 @@ import (
 	"go/token"
 	"strings"
 
+	"github.com/golangci/modinfo"
 	"golang.org/x/tools/go/analysis"
+	"golang.org/x/tools/go/analysis/passes/inspect"
 
 	"github.com/daixiang0/gci/pkg/config"
 	"github.com/daixiang0/gci/pkg/gci"
@@ -45,6 +47,10 @@ var Analyzer = &analysis.Analyzer{
 	Name: "gci",
 	Doc:  "A tool that control Go package import order and make it always deterministic.",
 	Run:  runAnalysis,
+	Requires: []*analysis.Analyzer{
+		inspect.Analyzer,
+		modinfo.Analyzer,
+	},
 }
 
 func runAnalysis(pass *analysis.Pass) (interface{}, error) {
@@ -62,8 +68,12 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 		return nil, InvalidNumberOfFilesInAnalysis{expectedNumFiles, foundNumFiles}
 	}
 
-	// read configuration options
-	gciCfg, err := parseGciConfiguration()
+	file, err := modinfo.FindModuleFromPass(pass)
+	if err != nil {
+		return nil, err
+	}
+
+	gciCfg, err := generateGciConfiguration(file.Path).Parse()
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +101,7 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 	return nil, nil
 }
 
-func parseGciConfiguration() (*config.Config, error) {
+func generateGciConfiguration(modPath string) *config.YamlConfig {
 	fmtCfg := config.BoolConfig{
 		NoInlineComments: noInlineComments,
 		NoPrefixComments: noPrefixComments,
@@ -109,7 +119,8 @@ func parseGciConfiguration() (*config.Config, error) {
 		sectionSeparatorStrings = strings.Split(sectionSeparatorsStr, SectionDelimiter)
 		fmt.Println(sectionSeparatorsStr)
 	}
-	return config.YamlConfig{Cfg: fmtCfg, SectionStrings: sectionStrings, SectionSeparatorStrings: sectionSeparatorStrings}.Parse()
+
+	return &config.YamlConfig{Cfg: fmtCfg, SectionStrings: sectionStrings, SectionSeparatorStrings: sectionSeparatorStrings, ModPath: modPath}
 }
 
 func generateCmdLine(cfg config.Config) string {
