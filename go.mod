@@ -2,8 +2,6 @@ module github.com/daixiang0/gci
 
 go 1.21
 
-toolchain go1.22.1
-
 require (
 	github.com/golangci/modinfo v0.3.3
 	github.com/hexops/gotextdiff v1.0.3
