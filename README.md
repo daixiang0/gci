@@ -38,7 +38,7 @@ GCI splits all import blocks into different sections, now support six section ty
 - localmodule: Put imports from local packages in a separate group
 
 The priority is standard > default > custom > blank > dot > alias > localmodule, all sections sort alphabetically inside.
-By default, blank , dot and alias sections are not used and the corresponding lines end up in the other groups.
+By default, blank, dot, and alias sections are not used, and the corresponding lines end up in the other groups.
 
 All import blocks use one TAB(`\t`) as Indent.
 
