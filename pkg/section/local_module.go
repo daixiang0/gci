@@ -46,6 +46,10 @@ func (m *LocalModule) Configure(path string) error {
 		m.Path = path
 	}
 
+	if !strings.HasSuffix(m.Path, "/") {
+		m.Path += "/"
+	}
+
 	return nil
 }
 
