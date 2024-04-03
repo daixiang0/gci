@@ -18,7 +18,7 @@ type LocalModule struct {
 }
 
 func (m *LocalModule) MatchSpecificity(spec *parse.GciImports) specificity.MatchSpecificity {
-	if strings.HasPrefix(spec.Path, m.Path) {
+	if spec.Path == m.Path || strings.HasPrefix(spec.Path, m.Path+"/") {
 		return specificity.LocalModule{}
 	}
 
