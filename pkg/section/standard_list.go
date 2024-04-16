@@ -1,6 +1,6 @@
 package section
 
-// Code generated based on go1.22.0 X:boringcrypto,arenas. DO NOT EDIT.
+// Code generated based on go1.22.2 X:boringcrypto,arenas,rangefunc. DO NOT EDIT.
 
 var standardPackages = map[string]struct{}{
 	"archive/tar":          {},
@@ -100,6 +100,7 @@ var standardPackages = map[string]struct{}{
 	"io":                   {},
 	"io/fs":                {},
 	"io/ioutil":            {},
+	"iter":                 {},
 	"log":                  {},
 	"log/slog":             {},
 	"log/syslog":           {},
