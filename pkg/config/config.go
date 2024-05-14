@@ -26,6 +26,7 @@ type BoolConfig struct {
 	SkipGenerated    bool `yaml:"skipGenerated"`
 	SkipVendor       bool `yaml:"skipVendor"`
 	CustomOrder      bool `yaml:"customOrder"`
+	FormatAlways     bool `yaml:"formatAlways"`
 }
 
 type Config struct {
