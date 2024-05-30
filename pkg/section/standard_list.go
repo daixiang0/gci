@@ -1,6 +1,6 @@
 package section
 
-// Code generated based on go1.22.0 X:boringcrypto,arenas. DO NOT EDIT.
+// Code generated based on go1.22.3. DO NOT EDIT.
 
 var standardPackages = map[string]struct{}{
 	"archive/tar":          {},
@@ -154,6 +154,7 @@ var standardPackages = map[string]struct{}{
 	"sync":                 {},
 	"sync/atomic":          {},
 	"syscall":              {},
+	"syscall/js":           {},
 	"testing":              {},
 	"testing/fstest":       {},
 	"testing/iotest":       {},
