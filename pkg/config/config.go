@@ -26,6 +26,7 @@ type BoolConfig struct {
 	SkipGenerated    bool `yaml:"skipGenerated"`
 	SkipVendor       bool `yaml:"skipVendor"`
 	CustomOrder      bool `yaml:"customOrder"`
+	NoLexOrder       bool `yaml:"noLexOrder"`
 }
 
 type Config struct {
@@ -63,7 +64,7 @@ func (g YamlConfig) Parse() (*Config, error) {
 		sort.Slice(sections, func(i, j int) bool {
 			sectionI, sectionJ := sections[i].Type(), sections[j].Type()
 
-			if strings.Compare(sectionI, sectionJ) == 0 {
+			if strings.Compare(sectionI, sectionJ) == 0 && !g.Cfg.NoLexOrder {
 				return strings.Compare(sections[i].String(), sections[j].String()) < 0
 			}
 			return defaultOrder[sectionI] < defaultOrder[sectionJ]
