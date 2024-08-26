@@ -142,6 +142,10 @@ func generateCmdLine(cfg config.Config) string {
 		result += " --custom-order "
 	}
 
+	if cfg.BoolConfig.NoLexOrder {
+		result += " --no-lex-order"
+	}
+
 	for _, s := range cfg.Sections.String() {
 		result += fmt.Sprintf(" --Section \"%s\" ", s)
 	}
