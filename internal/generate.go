@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"go/format"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"sync"
 	"text/template"
 
+	"golang.org/x/sync/errgroup"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -87,17 +89,14 @@ func generate() error {
 	var all []*packages.Package
 
 	writeLock := sync.Mutex{}
-	wg := sync.WaitGroup{}
 
-	pairs := strings.Split(list, "\n")
-	for _, pair := range pairs {
-		wg.Add(1)
-		go func(pair string) {
-			defer wg.Done()
-
+	g, _ := errgroup.WithContext(context.Background())
+	for _, pair := range strings.Split(list, "\n") {
+		pair := pair
+		g.Go(func() error {
 			parts := strings.Split(pair, "\t")
 			if len(parts) != 2 {
-				return
+				return nil
 			}
 			goos := parts[0]
 			goarch := parts[1]
@@ -107,7 +106,7 @@ func generate() error {
 				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto"),
 			}, "std")
 			if err != nil {
-				panic(err)
+				return err
 			}
 			fmt.Println("loaded", goos, goarch, len(pkgs))
 
@@ -115,22 +114,25 @@ func generate() error {
 			defer writeLock.Unlock()
 
 			all = append(all, pkgs...)
-		}(pair)
+			return nil
+		})
 	}
 
-	wg.Wait()
+	if err := g.Wait(); err != nil {
+		return err
+	}
 
-	var pkgSet = make(map[string]struct{})
+	uniquePkgs := make(map[string]struct{})
 
 	// go list std | grep -v vendor | grep -v internal
 	for _, pkg := range all {
 		if !strings.Contains(pkg.PkgPath, "internal") && !strings.Contains(pkg.PkgPath, "vendor") {
-			pkgSet[pkg.PkgPath] = struct{}{}
+			uniquePkgs[pkg.PkgPath] = struct{}{}
 		}
 	}
 
-	pkgs := make([]string, 0, len(pkgSet))
-	for pkg := range pkgSet {
+	pkgs := make([]string, 0, len(uniquePkgs))
+	for pkg := range uniquePkgs {
 		pkgs = append(pkgs, pkg)
 	}
 
