@@ -64,11 +64,11 @@ func (g YamlConfig) Parse() (*Config, error) {
 		sort.Slice(sections, func(i, j int) bool {
 			sectionI, sectionJ := sections[i].Type(), sections[j].Type()
 
-			if g.Cfg.NoLexOrder || strings.Compare(sectionI, sectionJ) != 0 {
+			if g.Cfg.NoLexOrder || sectionI != sectionJ {
 				return defaultOrder[sectionI] < defaultOrder[sectionJ]
 			}
 
-			return strings.Compare(sections[i].String(), sections[j].String()) < 0
+			return sections[i].String() < sections[j].String()
 		})
 	}
 
