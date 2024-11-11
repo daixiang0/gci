@@ -129,7 +129,7 @@ func generate() error {
 		}
 	}
 
-	var pkgs []string
+	pkgs := make([]string, 0, len(pkgSet))
 	for pkg := range pkgSet {
 		pkgs = append(pkgs, pkg)
 	}
