@@ -94,12 +94,10 @@ func generate() error {
 	for _, pair := range strings.Split(list, "\n") {
 		pair := pair
 		g.Go(func() error {
-			parts := strings.Split(pair, "\t")
-			if len(parts) != 2 {
+			goos, goarch, found := strings.Cut(pair, "\t")
+			if !found {
 				return nil
 			}
-			goos := parts[0]
-			goarch := parts[1]
 
 			pkgs, err := packages.Load(&packages.Config{
 				Mode: packages.NeedName,
