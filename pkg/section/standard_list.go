@@ -156,6 +156,7 @@ var standardPackages = map[string]struct{}{
 	"sync":                 {},
 	"sync/atomic":          {},
 	"syscall":              {},
+	"syscall/js":           {},
 	"testing":              {},
 	"testing/fstest":       {},
 	"testing/iotest":       {},

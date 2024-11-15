@@ -2,12 +2,17 @@ package main
 
 import (
 	"bytes"
+	"context"
+	"fmt"
 	"go/format"
 	"os"
 	"runtime"
+	"slices"
 	"strings"
+	"sync"
 	"text/template"
 
+	"golang.org/x/sync/errgroup"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -35,25 +40,107 @@ func main() {
 	}
 }
 
+// update from https://go.dev/doc/install/source#environment
+var list = `aix	ppc64
+android	386
+android	amd64
+android	arm
+android	arm64
+darwin	amd64
+darwin	arm64
+dragonfly	amd64
+freebsd	386
+freebsd	amd64
+freebsd	arm
+illumos	amd64
+ios	arm64
+js	wasm
+linux	386
+linux	amd64
+linux	arm
+linux	arm64
+linux	loong64
+linux	mips
+linux	mipsle
+linux	mips64
+linux	mips64le
+linux	ppc64
+linux	ppc64le
+linux	riscv64
+linux	s390x
+netbsd	386
+netbsd	amd64
+netbsd	arm
+openbsd	386
+openbsd	amd64
+openbsd	arm
+openbsd	arm64
+plan9	386
+plan9	amd64
+plan9	arm
+solaris	amd64
+wasip1	wasm
+windows	386
+windows	amd64
+windows	arm
+windows	arm64`
+
 func generate() error {
-	all, err := packages.Load(nil, "std")
-	if err != nil {
+	var all []*packages.Package
+
+	writeLock := sync.Mutex{}
+
+	g, _ := errgroup.WithContext(context.Background())
+	for _, pair := range strings.Split(list, "\n") {
+		pair := pair
+		g.Go(func() error {
+			goos, goarch, found := strings.Cut(pair, "\t")
+			if !found {
+				return nil
+			}
+
+			pkgs, err := packages.Load(&packages.Config{
+				Mode: packages.NeedName,
+				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto"),
+			}, "std")
+			if err != nil {
+				return err
+			}
+			fmt.Println("loaded", goos, goarch, len(pkgs))
+
+			writeLock.Lock()
+			defer writeLock.Unlock()
+
+			all = append(all, pkgs...)
+			return nil
+		})
+	}
+
+	if err := g.Wait(); err != nil {
 		return err
 	}
 
-	var pkgs []string
+	uniquePkgs := make(map[string]struct{})
 
 	// go list std | grep -v vendor | grep -v internal
 	for _, pkg := range all {
 		if !strings.Contains(pkg.PkgPath, "internal") && !strings.Contains(pkg.PkgPath, "vendor") {
-			pkgs = append(pkgs, pkg.PkgPath)
+			uniquePkgs[pkg.PkgPath] = struct{}{}
 		}
 	}
+
+	pkgs := make([]string, 0, len(uniquePkgs))
+	for pkg := range uniquePkgs {
+		pkgs = append(pkgs, pkg)
+	}
+
+	slices.Sort(pkgs)
 
 	file, err := os.Create(outputFile)
 	if err != nil {
 		return err
 	}
+	defer file.Close()
 
 	models := map[string]interface{}{
 		"Packages": pkgs,
