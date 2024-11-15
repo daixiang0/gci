@@ -2,7 +2,6 @@ package config
 
 import (
 	"sort"
-	"strings"
 
 	"gopkg.in/yaml.v3"
 
