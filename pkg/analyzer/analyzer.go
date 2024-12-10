@@ -23,6 +23,7 @@ const (
 	SectionSeparatorsFlag = "SectionSeparators"
 	NoLexOrderFlag        = "NoLexOrder"
 	CustomOrderFlag       = "CustomOrder"
+	PrefixDelimiterFlag   = "PrefixDelimiter"
 )
 
 const SectionDelimiter = ","
@@ -35,6 +36,7 @@ var (
 	sectionSeparatorsStr string
 	noLexOrder           bool
 	customOrder          bool
+	prefixDelimiter      string
 )
 
 func init() {
@@ -46,6 +48,7 @@ func init() {
 	Analyzer.Flags.BoolVar(&noLexOrder, NoLexOrderFlag, false, "Drops lexical ordering for custom sections")
 	Analyzer.Flags.BoolVar(&customOrder, CustomOrderFlag, false, "Enable custom order of sections")
 
+	Analyzer.Flags.StringVar(&prefixDelimiter, PrefixDelimiterFlag, SectionDelimiter, "")
 	log.InitLogger()
 	defer log.L().Sync()
 }
@@ -91,20 +94,24 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		fix, err := GetSuggestedFix(file, unmodifiedFile, formattedFile)
 		if err != nil {
 			return nil, err
 		}
+
 		if fix == nil {
 			// no difference
 			continue
 		}
+
 		pass.Report(analysis.Diagnostic{
 			Pos:            fix.TextEdits[0].Pos,
 			Message:        fmt.Sprintf("fix by `%s %s`", generateCmdLine(*gciCfg), filePath),
 			SuggestedFixes: []analysis.SuggestedFix{*fix},
 		})
 	}
+
 	return nil, nil
 }
 
@@ -120,7 +127,10 @@ func generateGciConfiguration(modPath string) *config.YamlConfig {
 
 	var sectionStrings []string
 	if sectionsStr != "" {
-		sectionStrings = strings.Split(sectionsStr, SectionDelimiter)
+		s := strings.Split(sectionsStr, SectionDelimiter)
+		for _, a := range s {
+			sectionStrings = append(sectionStrings, strings.ReplaceAll(a, prefixDelimiter, SectionDelimiter))
+		}
 	}
 
 	var sectionSeparatorStrings []string
