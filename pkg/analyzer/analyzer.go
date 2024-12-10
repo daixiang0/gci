@@ -5,7 +5,6 @@ import (
 	"go/token"
 	"strings"
 
-	"github.com/golangci/modinfo"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 
@@ -49,7 +48,6 @@ var Analyzer = &analysis.Analyzer{
 	Run:  runAnalysis,
 	Requires: []*analysis.Analyzer{
 		inspect.Analyzer,
-		modinfo.Analyzer,
 	},
 }
 
@@ -68,12 +66,7 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 		return nil, InvalidNumberOfFilesInAnalysis{expectedNumFiles, foundNumFiles}
 	}
 
-	file, err := modinfo.FindModuleFromPass(pass)
-	if err != nil {
-		return nil, err
-	}
-
-	gciCfg, err := generateGciConfiguration(file.Path).Parse()
+	gciCfg, err := generateGciConfiguration(pass.Module.Path).Parse()
 	if err != nil {
 		return nil, err
 	}
