@@ -20,8 +20,11 @@ const (
 	SkipGeneratedFlag     = "skipGenerated"
 	SectionsFlag          = "Sections"
 	SectionSeparatorsFlag = "SectionSeparators"
-	SectionDelimiter      = ","
+	NoLexOrderFlag        = "NoLexOrder"
+	CustomOrderFlag       = "CustomOrder"
 )
+
+const SectionDelimiter = ","
 
 var (
 	noInlineComments     bool
@@ -29,6 +32,8 @@ var (
 	skipGenerated        bool
 	sectionsStr          string
 	sectionSeparatorsStr string
+	noLexOrder           bool
+	customOrder          bool
 )
 
 func init() {
@@ -37,6 +42,8 @@ func init() {
 	Analyzer.Flags.BoolVar(&skipGenerated, SkipGeneratedFlag, false, "Skip generated files")
 	Analyzer.Flags.StringVar(&sectionsStr, SectionsFlag, "", "Specify the Sections format that should be used to check the file formatting")
 	Analyzer.Flags.StringVar(&sectionSeparatorsStr, SectionSeparatorsFlag, "", "Specify the Sections that are inserted as Separators between Sections")
+	Analyzer.Flags.BoolVar(&noLexOrder, NoLexOrderFlag, false, "Drops lexical ordering for custom sections")
+	Analyzer.Flags.BoolVar(&customOrder, CustomOrderFlag, false, "Enable custom order of sections")
 
 	log.InitLogger()
 	defer log.L().Sync()
@@ -100,6 +107,8 @@ func generateGciConfiguration(modPath string) *config.YamlConfig {
 		NoPrefixComments: noPrefixComments,
 		Debug:            false,
 		SkipGenerated:    skipGenerated,
+		CustomOrder:      customOrder,
+		NoLexOrder:       noLexOrder,
 	}
 
 	var sectionStrings []string
@@ -110,7 +119,6 @@ func generateGciConfiguration(modPath string) *config.YamlConfig {
 	var sectionSeparatorStrings []string
 	if sectionSeparatorsStr != "" {
 		sectionSeparatorStrings = strings.Split(sectionSeparatorsStr, SectionDelimiter)
-		fmt.Println(sectionSeparatorsStr)
 	}
 
 	return &config.YamlConfig{Cfg: fmtCfg, SectionStrings: sectionStrings, SectionSeparatorStrings: sectionSeparatorStrings, ModPath: modPath}
