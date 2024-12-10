@@ -1,7 +1,6 @@
 package analyzer
 
 import (
-	"fmt"
 	"go/token"
 	"strings"
 
@@ -82,8 +81,7 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 	}
 
 	for _, file := range fileReferences {
-		filePath := file.Name()
-		unmodifiedFile, formattedFile, err := gci.LoadFormatGoFile(io.File{FilePath: filePath}, *gciCfg)
+		unmodifiedFile, formattedFile, err := gci.LoadFormatGoFile(io.File{FilePath: file.Name()}, *gciCfg)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +98,7 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 
 		pass.Report(analysis.Diagnostic{
 			Pos:            fix.TextEdits[0].Pos,
-			Message:        fmt.Sprintf("fix by `%s %s`", generateCmdLine(*gciCfg), filePath),
+			Message:        "Invalid import order",
 			SuggestedFixes: []analysis.SuggestedFix{*fix},
 		})
 	}
@@ -132,36 +130,4 @@ func generateGciConfiguration(modPath string) *config.YamlConfig {
 	}
 
 	return &config.YamlConfig{Cfg: fmtCfg, SectionStrings: sectionStrings, SectionSeparatorStrings: sectionSeparatorStrings, ModPath: modPath}
-}
-
-func generateCmdLine(cfg config.Config) string {
-	result := "gci write"
-
-	if cfg.BoolConfig.NoInlineComments {
-		result += " --NoInlineComments "
-	}
-
-	if cfg.BoolConfig.NoPrefixComments {
-		result += " --NoPrefixComments "
-	}
-
-	if cfg.BoolConfig.SkipGenerated {
-		result += " --skip-generated "
-	}
-
-	if cfg.BoolConfig.CustomOrder {
-		result += " --custom-order "
-	}
-
-	if cfg.BoolConfig.NoLexOrder {
-		result += " --no-lex-order"
-	}
-
-	for _, s := range cfg.Sections.String() {
-		result += fmt.Sprintf(" --Section \"%s\" ", s)
-	}
-	for _, s := range cfg.SectionSeparators.String() {
-		result += fmt.Sprintf(" --SectionSeparator %s ", s)
-	}
-	return result
 }
