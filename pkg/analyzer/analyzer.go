@@ -37,30 +37,38 @@ var (
 	prefixDelimiter      string
 )
 
-func init() {
-	Analyzer.Flags.BoolVar(&noInlineComments, NoInlineCommentsFlag, false, "If comments in the same line as the input should be present")
-	Analyzer.Flags.BoolVar(&noPrefixComments, NoPrefixCommentsFlag, false, "If comments above an input should be present")
-	Analyzer.Flags.BoolVar(&skipGenerated, SkipGeneratedFlag, false, "Skip generated files")
-	Analyzer.Flags.StringVar(&sectionsStr, SectionsFlag, "", "Specify the Sections format that should be used to check the file formatting")
-	Analyzer.Flags.StringVar(&sectionSeparatorsStr, SectionSeparatorsFlag, "", "Specify the Sections that are inserted as Separators between Sections")
-	Analyzer.Flags.BoolVar(&noLexOrder, NoLexOrderFlag, false, "Drops lexical ordering for custom sections")
-	Analyzer.Flags.BoolVar(&customOrder, CustomOrderFlag, false, "Enable custom order of sections")
-
-	Analyzer.Flags.StringVar(&prefixDelimiter, PrefixDelimiterFlag, SectionDelimiter, "")
+func NewAnalyzer() *analysis.Analyzer {
 	log.InitLogger()
-	defer log.L().Sync()
+	_ = log.L().Sync()
+
+	a := &analysis.Analyzer{
+		Name:     "gci",
+		Doc:      "A tool that control Go package import order and make it always deterministic.",
+		Run:      runAnalysis,
+		Requires: []*analysis.Analyzer{inspect.Analyzer},
+	}
+
+	a.Flags.BoolVar(&noInlineComments, NoInlineCommentsFlag, false,
+		"If comments in the same line as the input should be present")
+	a.Flags.BoolVar(&noPrefixComments, NoPrefixCommentsFlag, false,
+		"If comments above an input should be present")
+	a.Flags.BoolVar(&skipGenerated, SkipGeneratedFlag, false,
+		"Skip generated files")
+	a.Flags.StringVar(&sectionsStr, SectionsFlag, "",
+		"Specify the Sections format that should be used to check the file formatting")
+	a.Flags.StringVar(&sectionSeparatorsStr, SectionSeparatorsFlag, "",
+		"Specify the Sections that are inserted as Separators between Sections")
+	a.Flags.BoolVar(&noLexOrder, NoLexOrderFlag, false,
+		"Drops lexical ordering for custom sections")
+	a.Flags.BoolVar(&customOrder, CustomOrderFlag, false,
+		"Enable custom order of sections")
+
+	a.Flags.StringVar(&prefixDelimiter, PrefixDelimiterFlag, SectionDelimiter, "")
+
+	return a
 }
 
-var Analyzer = &analysis.Analyzer{
-	Name: "gci",
-	Doc:  "A tool that control Go package import order and make it always deterministic.",
-	Run:  runAnalysis,
-	Requires: []*analysis.Analyzer{
-		inspect.Analyzer,
-	},
-}
-
-func runAnalysis(pass *analysis.Pass) (interface{}, error) {
+func runAnalysis(pass *analysis.Pass) (any, error) {
 	var fileReferences []*token.File
 	// extract file references for all files in the analyzer pass
 	for _, pkgFile := range pass.Files {
@@ -98,7 +106,7 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 
 		pass.Report(analysis.Diagnostic{
 			Pos:            fix.TextEdits[0].Pos,
-			Message:        "Invalid import order",
+			Message:        "File is not properly formatted",
 			SuggestedFixes: []analysis.SuggestedFix{*fix},
 		})
 	}
