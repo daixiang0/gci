@@ -33,7 +33,7 @@ func TestRun(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, testCases[i].in, string(old))
 			assert.Equal(t, testCases[i].out, string(new))
 		})
