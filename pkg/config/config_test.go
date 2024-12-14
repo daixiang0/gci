@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/daixiang0/gci/pkg/section"
 )
@@ -14,7 +15,7 @@ func TestParseOrder(t *testing.T) {
 		SectionStrings: []string{"default", "prefix(github/daixiang0/gci)", "prefix(github/daixiang0/gai)"},
 	}
 	gciCfg, err := cfg.Parse()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, section.SectionList{section.Default{}, section.Custom{Prefix: "github/daixiang0/gai"}, section.Custom{Prefix: "github/daixiang0/gci"}}, gciCfg.Sections)
 }
 
@@ -26,7 +27,7 @@ func TestParseCustomOrder(t *testing.T) {
 		},
 	}
 	gciCfg, err := cfg.Parse()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, section.SectionList{section.Default{}, section.Custom{Prefix: "github/daixiang0/gci"}, section.Custom{Prefix: "github/daixiang0/gai"}}, gciCfg.Sections)
 }
 
@@ -39,6 +40,6 @@ func TestParseNoLexOrder(t *testing.T) {
 	}
 
 	gciCfg, err := cfg.Parse()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, section.SectionList{section.Default{}, section.Custom{Prefix: "github/daixiang0/gci"}, section.Custom{Prefix: "github/daixiang0/gai"}}, gciCfg.Sections)
 }
