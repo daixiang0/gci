@@ -1,7 +1,6 @@
 package analyzer
 
 import (
-	"fmt"
 	"go/token"
 	"strings"
 
@@ -21,8 +20,12 @@ const (
 	SkipGeneratedFlag     = "skipGenerated"
 	SectionsFlag          = "Sections"
 	SectionSeparatorsFlag = "SectionSeparators"
-	SectionDelimiter      = ","
+	NoLexOrderFlag        = "NoLexOrder"
+	CustomOrderFlag       = "CustomOrder"
+	PrefixDelimiterFlag   = "PrefixDelimiter"
 )
+
+const SectionDelimiter = ","
 
 var (
 	noInlineComments     bool
@@ -30,30 +33,43 @@ var (
 	skipGenerated        bool
 	sectionsStr          string
 	sectionSeparatorsStr string
+	noLexOrder           bool
+	customOrder          bool
+	prefixDelimiter      string
 )
 
-func init() {
-	Analyzer.Flags.BoolVar(&noInlineComments, NoInlineCommentsFlag, false, "If comments in the same line as the input should be present")
-	Analyzer.Flags.BoolVar(&noPrefixComments, NoPrefixCommentsFlag, false, "If comments above an input should be present")
-	Analyzer.Flags.BoolVar(&skipGenerated, SkipGeneratedFlag, false, "Skip generated files")
-	Analyzer.Flags.StringVar(&sectionsStr, SectionsFlag, "", "Specify the Sections format that should be used to check the file formatting")
-	Analyzer.Flags.StringVar(&sectionSeparatorsStr, SectionSeparatorsFlag, "", "Specify the Sections that are inserted as Separators between Sections")
-
+func NewAnalyzer() *analysis.Analyzer {
 	log.InitLogger()
-	defer log.L().Sync()
+	_ = log.L().Sync()
+
+	a := &analysis.Analyzer{
+		Name:     "gci",
+		Doc:      "A tool that control Go package import order and make it always deterministic.",
+		Run:      runAnalysis,
+		Requires: []*analysis.Analyzer{inspect.Analyzer},
+	}
+
+	a.Flags.BoolVar(&noInlineComments, NoInlineCommentsFlag, false,
+		"If comments in the same line as the input should be present")
+	a.Flags.BoolVar(&noPrefixComments, NoPrefixCommentsFlag, false,
+		"If comments above an input should be present")
+	a.Flags.BoolVar(&skipGenerated, SkipGeneratedFlag, false,
+		"Skip generated files")
+	a.Flags.StringVar(&sectionsStr, SectionsFlag, "",
+		"Specify the Sections format that should be used to check the file formatting")
+	a.Flags.StringVar(&sectionSeparatorsStr, SectionSeparatorsFlag, "",
+		"Specify the Sections that are inserted as Separators between Sections")
+	a.Flags.BoolVar(&noLexOrder, NoLexOrderFlag, false,
+		"Drops lexical ordering for custom sections")
+	a.Flags.BoolVar(&customOrder, CustomOrderFlag, false,
+		"Enable custom order of sections")
+
+	a.Flags.StringVar(&prefixDelimiter, PrefixDelimiterFlag, SectionDelimiter, "")
+
+	return a
 }
 
-var Analyzer = &analysis.Analyzer{
-	Name: "gci",
-	Doc:  "A tool that control Go package import order and make it always deterministic.",
-	Run:  runAnalysis,
-	Requires: []*analysis.Analyzer{
-		inspect.Analyzer,
-		modinfo.Analyzer,
-	},
-}
-
-func runAnalysis(pass *analysis.Pass) (interface{}, error) {
+func runAnalysis(pass *analysis.Pass) (any, error) {
 	var fileReferences []*token.File
 	// extract file references for all files in the analyzer pass
 	for _, pkgFile := range pass.Files {
@@ -79,25 +95,28 @@ func runAnalysis(pass *analysis.Pass) (interface{}, error) {
 	}
 
 	for _, file := range fileReferences {
-		filePath := file.Name()
-		unmodifiedFile, formattedFile, err := gci.LoadFormatGoFile(io.File{FilePath: filePath}, *gciCfg)
+		unmodifiedFile, formattedFile, err := gci.LoadFormatGoFile(io.File{FilePath: file.Name()}, *gciCfg)
 		if err != nil {
 			return nil, err
 		}
+
 		fix, err := GetSuggestedFix(file, unmodifiedFile, formattedFile)
 		if err != nil {
 			return nil, err
 		}
+
 		if fix == nil {
 			// no difference
 			continue
 		}
+
 		pass.Report(analysis.Diagnostic{
 			Pos:            fix.TextEdits[0].Pos,
-			Message:        fmt.Sprintf("fix by `%s %s`", generateCmdLine(*gciCfg), filePath),
+			Message:        "File is not properly formatted",
 			SuggestedFixes: []analysis.SuggestedFix{*fix},
 		})
 	}
+
 	return nil, nil
 }
 
@@ -107,50 +126,22 @@ func generateGciConfiguration(modPath string) *config.YamlConfig {
 		NoPrefixComments: noPrefixComments,
 		Debug:            false,
 		SkipGenerated:    skipGenerated,
+		CustomOrder:      customOrder,
+		NoLexOrder:       noLexOrder,
 	}
 
 	var sectionStrings []string
 	if sectionsStr != "" {
-		sectionStrings = strings.Split(sectionsStr, SectionDelimiter)
+		s := strings.Split(sectionsStr, SectionDelimiter)
+		for _, a := range s {
+			sectionStrings = append(sectionStrings, strings.ReplaceAll(a, prefixDelimiter, SectionDelimiter))
+		}
 	}
 
 	var sectionSeparatorStrings []string
 	if sectionSeparatorsStr != "" {
 		sectionSeparatorStrings = strings.Split(sectionSeparatorsStr, SectionDelimiter)
-		fmt.Println(sectionSeparatorsStr)
 	}
 
 	return &config.YamlConfig{Cfg: fmtCfg, SectionStrings: sectionStrings, SectionSeparatorStrings: sectionSeparatorStrings, ModPath: modPath}
-}
-
-func generateCmdLine(cfg config.Config) string {
-	result := "gci write"
-
-	if cfg.BoolConfig.NoInlineComments {
-		result += " --NoInlineComments "
-	}
-
-	if cfg.BoolConfig.NoPrefixComments {
-		result += " --NoPrefixComments "
-	}
-
-	if cfg.BoolConfig.SkipGenerated {
-		result += " --skip-generated "
-	}
-
-	if cfg.BoolConfig.CustomOrder {
-		result += " --custom-order "
-	}
-
-	if cfg.BoolConfig.NoLexOrder {
-		result += " --no-lex-order"
-	}
-
-	for _, s := range cfg.Sections.String() {
-		result += fmt.Sprintf(" --Section \"%s\" ", s)
-	}
-	for _, s := range cfg.SectionSeparators.String() {
-		result += fmt.Sprintf(" --SectionSeparator %s ", s)
-	}
-	return result
 }
