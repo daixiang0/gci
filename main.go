@@ -1,15 +1,15 @@
 package main
 
 import (
-	"os"
-
 	"github.com/daixiang0/gci/cmd/gci"
+	"os"
+	"strings"
 )
 
-var version = "0.13.4"
+var Version = "0.0.0"
 
 func main() {
-	e := gci.NewExecutor(version)
+	e := gci.NewExecutor(strings.TrimPrefix(Version, "v"))
 
 	err := e.Execute()
 	if err != nil {
