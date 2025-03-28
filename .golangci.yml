@@ -64,6 +64,11 @@ linters-settings:
     section-separators:
       - newLine
 
+  gocritic:
+    disable-all: true
+    enabled-checks:
+      # suggest removing unnecessary strings.Compare
+      - stringsCompare
   gofmt:
     # simplify code: gofmt with `-s` option, true by default
     simplify: true
@@ -75,11 +80,12 @@ linters-settings:
 linters:
   fast: false
   enable:
+  - gocritic
   - gofmt
   - gofumpt
   - goimports
   - gci
   disable-all: true
-  
+
 issues:
   exclude:
