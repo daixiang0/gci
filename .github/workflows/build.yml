@@ -1,34 +1,31 @@
-name: gci
+name: build
 
 on:
   pull_request:
 
 jobs:
   build:
-    name: Tests
+    name: Build and Tests
     runs-on: ${{ matrix.os }}
     env:
-      GOVER: 1.23
       GOPROXY: https://proxy.golang.org
       ARCHIVE_OUTDIR: dist/archives
       TEST_OUTPUT_FILE_PREFIX: test_report
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        go: [ oldstable, stable ]
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v4
-      - name: Set up Go ${{ env.GOVER }}
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GOVER }}
-      - name: golangci-lint
-        if:  matrix.os == 'linux'
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: ${{ env.GOLANGCILINT_VER }}
+          go-version: ${{ matrix.go }}
       - name: Run make test
         env:
           COVERAGE_OPTS: "-coverprofile=coverage.txt -covermode=atomic"
         run: make test
+      - name: Run make build
+        run: make build
 
