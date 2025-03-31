@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/analysis"
 
 	"github.com/daixiang0/gci/pkg/analyzer"
@@ -113,14 +114,14 @@ import (
 		t.Run(tt.name, func(t *testing.T) {
 			fset := token.NewFileSet()
 			f, err := parser.ParseFile(fset, "analyzer.go", tt.unformattedFile, 0)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			actualFix, err := analyzer.GetSuggestedFix(fset.File(f.Pos()), []byte(tt.unformattedFile), []byte(formattedFile))
 			if tt.expectedErr != "" {
 				assert.ErrorContains(t, err, tt.expectedErr)
 				return
 			}
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, tt.expectedFix, actualFix)
 		})
 	}

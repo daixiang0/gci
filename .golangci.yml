@@ -71,6 +71,10 @@ linters-settings:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
     local-prefixes: github.com/daixiang0/gci
+  testifylint:
+    disable:
+    - useless-assert
+    enable-all: true
 
 linters:
   fast: false
@@ -79,6 +83,7 @@ linters:
   - gofumpt
   - goimports
   - gci
+  - testifylint
   disable-all: true
   
 issues:
