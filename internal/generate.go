@@ -23,7 +23,7 @@ const outputFile = "../pkg/section/standard_list.go"
 const stdTemplate = `
 package section
 
-// Code generated based on {{ .Version }}. DO NOT EDIT.
+// Code generated based on {{ .Version }} X:boringcrypto,arenas,synctest. DO NOT EDIT.
 
 var standardPackages = map[string]struct{}{
 {{- range $pkg := .Packages }}
@@ -101,7 +101,7 @@ func generate() error {
 
 			pkgs, err := packages.Load(&packages.Config{
 				Mode: packages.NeedName,
-				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto"),
+				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto,synctest"),
 			}, "std")
 			if err != nil {
 				return err

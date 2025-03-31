@@ -167,6 +167,7 @@ var standardPackages = map[string]struct{}{
 	"testing/iotest":       {},
 	"testing/quick":        {},
 	"testing/slogtest":     {},
+	"testing/synctest":     {},
 	"text/scanner":         {},
 	"text/tabwriter":       {},
 	"text/template":        {},
