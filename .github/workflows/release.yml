@@ -1,7 +1,7 @@
 name: release gci
 on:
   release:
-    types: [published]
+    types: [published, edited]
   workflow_dispatch:
 
 jobs:
