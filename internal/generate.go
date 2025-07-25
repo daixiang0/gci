@@ -101,7 +101,7 @@ func generate() error {
 
 			pkgs, err := packages.Load(&packages.Config{
 				Mode: packages.NeedName,
-				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto"),
+				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto,synctest,jsonv2"),
 			}, "std")
 			if err != nil {
 				return err
