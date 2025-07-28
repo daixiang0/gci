@@ -44,7 +44,11 @@ linters-settings:
       - standard                       # Captures all standard packages if they do not match another section.
       - default                        # Contains all imports that could not be matched to another section type.
       - prefix(github.com/daixiang0/gci) # Groups all imports with the specified Prefix.
-
+  gocritic:
+    disable-all: true
+    enabled-checks:
+      # suggest removing unnecessary strings.Compare
+      - stringsCompare
   gofmt:
     # simplify code: gofmt with `-s` option, true by default
     simplify: true
@@ -56,6 +60,7 @@ linters-settings:
 linters:
   disable-all: true
   enable:
+  - gocritic
   - gofmt
   - gofumpt
   - goimports

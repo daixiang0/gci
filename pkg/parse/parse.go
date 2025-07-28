@@ -22,11 +22,11 @@ func (l ImportList) Len() int {
 }
 
 func (l ImportList) Less(i, j int) bool {
-	if strings.Compare(l[i].Path, l[j].Path) == 0 {
-		return strings.Compare(l[i].Name, l[j].Name) < 0
+	if l[i].Path == l[j].Path {
+		return l[i].Name < l[j].Name
 	}
 
-	return strings.Compare(l[i].Path, l[j].Path) < 0
+	return l[i].Path < l[j].Path
 }
 
 func (l ImportList) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
