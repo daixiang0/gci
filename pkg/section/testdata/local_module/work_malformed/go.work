@@ -1,0 +1,3 @@
+invalid go.work syntax
+use (
+	missing closing bracket
