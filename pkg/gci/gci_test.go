@@ -122,5 +122,5 @@ func TestRunWithLocalModuleWithPackageLoadFailure(t *testing.T) {
 
 	chdir(t, dir)
 	_, err := config.ParseConfig(configContent)
-	require.ErrorContains(t, err, "go.mod: open go.mod:")
+	require.ErrorContains(t, err, "could not find module path for `localModule` configuration")
 }
