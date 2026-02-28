@@ -1,0 +1,4 @@
+# try and stop git running on Windows from converting line endings from
+# in all Go files under this directory. This is to avoid inconsistent test
+# results when `gci` strips "\r" characters
+**/*.go eol=lf
