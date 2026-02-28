@@ -26,6 +26,7 @@ type BoolConfig struct {
 	SkipVendor       bool `yaml:"skipVendor"`
 	CustomOrder      bool `yaml:"customOrder"`
 	NoLexOrder       bool `yaml:"noLexOrder"`
+	Check            bool `yaml:"-"`
 }
 
 type Config struct {
