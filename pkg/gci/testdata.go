@@ -808,6 +808,42 @@ func main() {
 `,
 	},
 	{
+		"multiple-custom-preserve-custom-order",
+
+		`customOrder: true
+sections:
+  - Standard
+  - Default
+  - Prefix(github.com/def)
+  - Prefix(github.com/abc)
+`,
+		`package main
+
+import (
+	"fmt"
+
+	g "github.com/golang"
+
+	"github.com/def/package1"
+	"github.com/abc/package2"
+	"github.com/def/package3"
+)
+`,
+		`package main
+
+import (
+	"fmt"
+
+	g "github.com/golang"
+
+	"github.com/def/package1"
+	"github.com/def/package3"
+
+	"github.com/abc/package2"
+)
+`,
+	},
+	{
 		"multiple-line-comment",
 
 		commonConfig,
