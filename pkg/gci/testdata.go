@@ -1295,4 +1295,165 @@ import (
 )
 `,
 	},
+	{
+		"kubebuilder-scaffold-imports",
+
+		commonConfig,
+
+		`package main
+
+import (
+	"os"
+	"fmt"
+	// +kubebuilder:scaffold:imports
+)
+`,
+		`package main
+
+import (
+	"fmt"
+	"os"
+	// +kubebuilder:scaffold:imports
+)
+`,
+	},
+	{
+		"kubebuilder-scaffold-imports-with-third-party",
+
+		commonConfig,
+
+		`package main
+
+import (
+	"os"
+	"fmt"
+
+	"github.com/golang"
+
+	"github.com/daixiang0/gci"
+	// +kubebuilder:scaffold:imports
+)
+`,
+		`package main
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/golang"
+
+	"github.com/daixiang0/gci"
+	// +kubebuilder:scaffold:imports
+)
+`,
+	},
+	{
+		"standalone-comment-already-sorted",
+
+		commonConfig,
+
+		`package main
+
+import (
+	"fmt"
+	"os"
+	// +kubebuilder:scaffold:imports
+)
+`,
+		`package main
+
+import (
+	"fmt"
+	"os"
+	// +kubebuilder:scaffold:imports
+)
+`,
+	},
+	{
+		"multiple-standalone-comments",
+
+		commonConfig,
+
+		`package main
+
+import (
+	"os"
+	"fmt"
+	// +kubebuilder:scaffold:imports
+	// another standalone comment
+)
+`,
+		`package main
+
+import (
+	"fmt"
+	"os"
+	// +kubebuilder:scaffold:imports
+	// another standalone comment
+)
+`,
+	},
+	{
+		"standalone-comment-with-cgo-before",
+
+		commonConfig,
+
+		`package main
+
+// #include <png.h>
+import "C"
+
+import (
+	"os"
+	"fmt"
+	// +kubebuilder:scaffold:imports
+)
+`,
+		`package main
+
+// #include <png.h>
+import "C"
+
+import (
+	"fmt"
+	"os"
+	// +kubebuilder:scaffold:imports
+)
+`,
+	},
+	{
+		"standalone-comment-with-cgo-after",
+
+		commonConfig,
+
+		`package main
+
+import (
+	"os"
+	"fmt"
+
+	"github.com/daixiang0/gci"
+	g "github.com/golang"
+	// +kubebuilder:scaffold:imports
+)
+
+// #include <png.h>
+import "C"
+`,
+		`package main
+
+// #include <png.h>
+import "C"
+
+import (
+	"fmt"
+	"os"
+
+	g "github.com/golang"
+
+	"github.com/daixiang0/gci"
+	// +kubebuilder:scaffold:imports
+)
+`,
+	},
 }

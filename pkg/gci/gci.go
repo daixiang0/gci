@@ -172,6 +172,37 @@ func LoadFormat(in []byte, path string, cfg config.Config) (src, dist []byte, er
 		}
 	}
 
+	// Preserve standalone line comments in the import block that are not
+	// associated with any import spec (e.g. // +kubebuilder:scaffold:imports).
+	// Only "//" line comments are preserved; standalone "/* */" block comments
+	// are not supported because go/format merges them with the closing ")",
+	// producing non-idempotent output.
+	lastImportEnd := 0
+	for _, d := range imports {
+		lastImportEnd = max(lastImportEnd, d.End)
+	}
+	if lastImportEnd > 0 && lastImportEnd < tailStart {
+		scanEnd := tailStart
+		// If C import block exists after the last regular import, stop before it
+		if cStart > lastImportEnd && cStart < scanEnd {
+			scanEnd = cStart
+		}
+		// Zero-allocation line scanning using bytes.Cut
+		remaining := src[lastImportEnd:scanEnd]
+		linebreak := []byte{utils.Linebreak}
+		commentPrefix := []byte("//")
+		for len(remaining) > 0 {
+			var line []byte
+			line, remaining, _ = bytes.Cut(remaining, linebreak)
+			trimmed := bytes.TrimSpace(line)
+			if bytes.HasPrefix(trimmed, commentPrefix) {
+				body = append(body, utils.Indent)
+				body = append(body, trimmed...)
+				body = append(body, utils.Linebreak)
+			}
+		}
+	}
+
 	head := make([]byte, headEnd)
 	copy(head, src[:headEnd])
 	tail := make([]byte, len(src)-tailStart)
