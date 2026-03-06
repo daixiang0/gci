@@ -50,23 +50,43 @@ func WriteFormattedFiles(paths []string, cfg config.Config) error {
 }
 
 func ListUnFormattedFiles(paths []string, cfg config.Config) error {
-	return processGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
+	var needsFormatting bool
+	err := processGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
 		if bytes.Equal(unmodifiedFile, formattedFile) {
 			return nil
 		}
+		needsFormatting = true
 		fmt.Println(filePath)
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	if cfg.Check && needsFormatting {
+		os.Exit(1)
+	}
+	return nil
 }
 
 func DiffFormattedFiles(paths []string, cfg config.Config) error {
-	return processStdInAndGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
+	var needsFormatting bool
+	err := processStdInAndGoFilesInPaths(paths, cfg, func(filePath string, unmodifiedFile, formattedFile []byte) error {
+		if !bytes.Equal(unmodifiedFile, formattedFile) {
+			needsFormatting = true
+		}
 		fileURI := span.URIFromPath(filePath)
 		edits := myers.ComputeEdits(fileURI, string(unmodifiedFile), string(formattedFile))
 		unifiedEdits := gotextdiff.ToUnified(filePath, filePath, string(unmodifiedFile), edits)
 		fmt.Printf("%v", unifiedEdits)
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	if cfg.Check && needsFormatting {
+		os.Exit(1)
+	}
+	return nil
 }
 
 func DiffFormattedFilesToArray(paths []string, cfg config.Config, diffs *[]string, lock *sync.Mutex) error {
