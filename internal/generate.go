@@ -18,7 +18,10 @@ import (
 
 //go:generate go run .
 
-const outputFile = "../pkg/section/standard_list.go"
+var outputFiles = []string{
+	"../pkg/section/standard_list.go",
+	"../v2/pkg/section/standard_list.go",
+}
 
 const stdTemplate = `
 package section
@@ -101,7 +104,7 @@ func generate() error {
 
 			pkgs, err := packages.Load(&packages.Config{
 				Mode: packages.NeedName,
-				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto,synctest,jsonv2"),
+				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto,jsonv2"),
 			}, "std")
 			if err != nil {
 				return err
@@ -136,6 +139,17 @@ func generate() error {
 
 	slices.Sort(pkgs)
 
+	for _, outputFile := range outputFiles {
+		err := generateFile(outputFile, pkgs)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func generateFile(outputFile string, pkgs []string) error {
 	file, err := os.Create(outputFile)
 	if err != nil {
 		return err
