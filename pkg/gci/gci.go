@@ -137,7 +137,7 @@ func LoadFormat(in []byte, path string, cfg config.Config) (src, dist []byte, er
 		return src, src, nil
 	}
 
-	imports, headEnd, tailStart, cStart, cEnd, err := parse.ParseFile(src, path)
+	imports, headEnd, tailStart, cStart, cEnd, tailCommentStart, tailCommentEnd, err := parse.ParseFile(src, path)
 	if err != nil {
 		if errors.Is(err, parse.NoImportError{}) {
 			return src, src, nil
@@ -186,6 +186,17 @@ func LoadFormat(in []byte, path string, cfg config.Config) (src, dist []byte, er
 	// add beginning of import block
 	head = append(head, `import (`...)
 	head = append(head, utils.Linebreak)
+
+	// Preserve any standalone comment that lived inside the import block but
+	// was not attached to a specific import spec (e.g. code-generation
+	// markers such as `// +kubebuilder:scaffold:imports`). Without this,
+	// such comments are silently dropped because body is only ever built
+	// from the byte ranges of recognized import specs above.
+	if tailCommentStart >= 0 && tailCommentEnd > tailCommentStart {
+		body = append(body, utils.Linebreak, utils.Indent)
+		body = append(body, src[tailCommentStart:tailCommentEnd]...)
+	}
+
 	// add end of import block
 	body = append(body, []byte{utils.RightParenthesis, utils.Linebreak}...)
 

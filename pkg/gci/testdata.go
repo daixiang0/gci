@@ -1295,4 +1295,26 @@ import (
 )
 `,
 	},
+	{
+		"trailing-marker-comment",
+
+		commonConfig,
+
+		`package main
+
+import (
+	"os"
+	"fmt"
+	// +kubebuilder:scaffold:imports
+)
+`,
+		`package main
+
+import (
+	"fmt"
+	"os"
+	// +kubebuilder:scaffold:imports
+)
+`,
+	},
 }

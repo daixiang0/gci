@@ -70,15 +70,50 @@ func getImports(imp *ast.ImportSpec) (start, end int, name string) {
 	return
 }
 
-func ParseFile(src []byte, filename string) (ImportList, int, int, int, int, error) {
+// findTailComment looks for a comment group that sits inside the import
+// block, after the last recognized import spec but before the closing
+// parenthesis, and is therefore not attached (as Doc or Comment) to any
+// *ast.ImportSpec. Tools such as kubebuilder/controller-gen rely on a
+// standalone marker comment in exactly this position (e.g.
+// `// +kubebuilder:scaffold:imports`) to know where to insert future
+// imports, so it must be preserved across formatting instead of silently
+// dropped. Returns (-1, -1) if no such comment exists.
+func findTailComment(f *ast.File, data ImportList, tailStart int) (start, end int) {
+	start, end = -1, -1
+
+	if len(data) == 0 || tailStart == 0 {
+		return
+	}
+
+	lastImportEnd := 0
+	for _, d := range data {
+		if d.End > lastImportEnd {
+			lastImportEnd = d.End
+		}
+	}
+
+	for _, cg := range f.Comments {
+		cgStart := int(cg.Pos()) - 1
+		cgEnd := int(cg.End())
+		if cgStart >= lastImportEnd && cgEnd < tailStart {
+			if start == -1 {
+				start = cgStart
+			}
+			end = cgEnd
+		}
+	}
+	return
+}
+
+func ParseFile(src []byte, filename string) (ImportList, int, int, int, int, int, int, error) {
 	fileSet := token.NewFileSet()
 	f, err := parser.ParseFile(fileSet, filename, src, parser.ParseComments)
 	if err != nil {
-		return nil, 0, 0, 0, 0, err
+		return nil, 0, 0, 0, 0, -1, -1, err
 	}
 
 	if len(f.Imports) == 0 {
-		return nil, 0, 0, 0, 0, NoImportError{}
+		return nil, 0, 0, 0, 0, -1, -1, NoImportError{}
 	}
 
 	var (
@@ -161,8 +196,13 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, int, int, err
 		}
 	}
 
+	// Find any standalone comment that lives inside the import block but is
+	// not attached to a specific import spec, so callers can preserve it
+	// instead of losing it when the block is rewritten.
+	tailCommentStart, tailCommentEnd := findTailComment(f, data, tailStart)
+
 	sort.Sort(data)
-	return data, headEnd, tailStart, cStart, cEnd, nil
+	return data, headEnd, tailStart, cStart, cEnd, tailCommentStart, tailCommentEnd, nil
 }
 
 // IsGeneratedFileByComment reports whether the source file is generated code.
