@@ -29,3 +29,21 @@ jobs:
       - name: Run make build
         run: make build
 
+  generate:
+    name: Standard List Is Up To Date (root module)
+    runs-on: ubuntu-latest
+    env:
+      GOPROXY: https://proxy.golang.org
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: Regenerate the standard package list
+        run: make generate
+      - name: Fail if the standard package list is out of date
+        run: |
+          git diff --exit-code -I '^// Code generated based on ' -- pkg/section/standard_list.go \
+            || { echo "::error::pkg/section/standard_list.go is out of date, run 'make generate'"; exit 1; }

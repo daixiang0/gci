@@ -16,6 +16,7 @@ func TestStandardPackageSpecificity(t *testing.T) {
 		{"crypto/aes", Standard{}, specificity.StandardMatch{}},
 		{"crypto/aes2", Standard{}, specificity.MisMatch{}},
 		{"syscall/js", Standard{}, specificity.StandardMatch{}},
+		{"uuid", Standard{}, specificity.StandardMatch{}},
 	}
 	testSpecificity(t, testCases)
 }

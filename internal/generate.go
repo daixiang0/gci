@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go/format"
 	"os"
+	"os/exec"
 	"runtime"
 	"slices"
 	"strings"
@@ -23,7 +24,7 @@ const outputFile = "../pkg/section/standard_list.go"
 const stdTemplate = `
 package section
 
-// Code generated based on {{ .Version }}. DO NOT EDIT.
+// Code generated based on {{ .Version }} with GOEXPERIMENT={{ .Experiments }}. DO NOT EDIT.
 
 var standardPackages = map[string]struct{}{
 {{- range $pkg := .Packages }}
@@ -85,8 +86,51 @@ windows	amd64
 windows	arm
 windows	arm64`
 
+// candidateExperiments lists the GOEXPERIMENT values that expose extra
+// standard packages. Values unknown to the toolchain in use are skipped, so
+// that generation keeps working across Go releases.
+var candidateExperiments = []string{
+	"arenas",
+	"boringcrypto",
+	"jsonv2",
+	"simd",
+	"synctest",
+}
+
+// supportedExperiments returns the candidate experiments accepted by the
+// toolchain in use, formatted as a GOEXPERIMENT value.
+//
+// Only experiments the toolchain explicitly rejects are dropped. Any other
+// failure is reported, so that a broken environment cannot silently narrow the
+// generated list.
+func supportedExperiments() (string, error) {
+	supported := make([]string, 0, len(candidateExperiments))
+
+	for _, exp := range candidateExperiments {
+		cmd := exec.Command("go", "env", "GOEXPERIMENT")
+		cmd.Env = append(os.Environ(), "GOEXPERIMENT="+exp)
+
+		out, err := cmd.CombinedOutput()
+		if err == nil {
+			supported = append(supported, exp)
+			continue
+		}
+
+		if !bytes.Contains(out, []byte("unknown GOEXPERIMENT")) {
+			return "", fmt.Errorf("probing GOEXPERIMENT=%s: %w: %s", exp, err, out)
+		}
+	}
+
+	return strings.Join(supported, ","), nil
+}
+
 func generate() error {
 	var all []*packages.Package
+
+	experiments, err := supportedExperiments()
+	if err != nil {
+		return err
+	}
 
 	writeLock := sync.Mutex{}
 
@@ -101,7 +145,7 @@ func generate() error {
 
 			pkgs, err := packages.Load(&packages.Config{
 				Mode: packages.NeedName,
-				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT=arenas,boringcrypto,synctest,jsonv2"),
+				Env:  append(os.Environ(), "GOOS="+goos, "GOARCH="+goarch, "GOEXPERIMENT="+experiments),
 			}, "std")
 			if err != nil {
 				return err
@@ -143,8 +187,9 @@ func generate() error {
 	defer file.Close()
 
 	models := map[string]interface{}{
-		"Packages": pkgs,
-		"Version":  runtime.Version(),
+		"Packages":    pkgs,
+		"Version":     runtime.Version(),
+		"Experiments": experiments,
 	}
 
 	tlt, err := template.New("std-packages").Parse(stdTemplate)
