@@ -115,6 +115,7 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, int, int, err
 					tailStart = len(src)
 				}
 
+				importStart := len(data)
 				for _, spec := range genDecl.Specs {
 					imp := spec.(*ast.ImportSpec)
 					// there are only one C import block
@@ -145,7 +146,10 @@ func ParseFile(src []byte, filename string) (ImportList, int, int, int, int, err
 
 						cEnd = int(decl.End())
 
-						continue
+						// The entire declaration is retained as the C import block.
+						// Do not also emit any of its imports in the sorted block.
+						data = data[:importStart]
+						break
 					}
 
 					start, end, name := getImports(imp)
