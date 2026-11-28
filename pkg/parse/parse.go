@@ -63,9 +63,9 @@ func getImports(imp *ast.ImportSpec) (start, end int, name string) {
 	}
 
 	if imp.Comment != nil {
-		end = int(imp.Comment.End())
+		end = int(imp.Comment.End()) - 1
 	} else {
-		end = int(imp.Path.End())
+		end = int(imp.Path.End()) - 1
 	}
 	return
 }
