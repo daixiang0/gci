@@ -168,6 +168,7 @@ func LoadFormat(in []byte, path string, cfg config.Config) (src, dist []byte, er
 			for _, d := range result[s.String()] {
 				AddIndent(&body, &firstWithIndex)
 				body = append(body, src[d.Start:d.End]...)
+				body = append(body, utils.Linebreak)
 			}
 		}
 	}
